@@ -1,0 +1,16 @@
+﻿@{
+
+    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var language = @culture.RequestCulture.Culture.Name;
+
+    if (language == "pa")
+    {
+        Layout = "_RTLLayout";
+
+    }
+    else
+    {
+        Layout = "_LTRLayout";
+    }
+
+}

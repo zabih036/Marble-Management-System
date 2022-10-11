@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace ShawkanyDb.Models.Model
+{
+    public partial class Customer
+    {
+        public Customer()
+        {
+            CustomerDeal = new HashSet<CustomerDeal>();
+            Sale = new HashSet<Sale>();
+        }
+
+        public int CustomerId { get; set; }
+        public string Name { get; set; }
+        public string Fname { get; set; }
+        public string Address { get; set; }
+        public string Phone { get; set; }
+        public DateTime? RegDate { get; set; }
+
+        public virtual ICollection<CustomerDeal> CustomerDeal { get; set; }
+        public virtual ICollection<Sale> Sale { get; set; }
+    }
+}

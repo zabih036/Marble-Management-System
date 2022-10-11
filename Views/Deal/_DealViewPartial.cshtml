@@ -1,0 +1,733 @@
+﻿
+@model DealViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<link href="~/css/style.css" rel="stylesheet" />
+<style>
+    .title {
+        font-size: 30px;
+    }
+</style>
+<div class="modal-content">
+    <div class="modal-header bg-primary white" style=" justify-content: flex-start; display: flex; align-items: center;">
+        <button type="button" id="btnDealer" class="btn btn-warning btn-icon-sm">@localizer["Dealers"] </button>&nbsp;&nbsp;
+        <button type="button" id="btnCustomer" class="btn btn-success btn-icon-sm">@localizer["Customers"] </button>
+    </div>
+    <div class="modal-body">
+        @if (ViewBag.Alert != "empty")
+        {
+            <div class="alert alert-success alert-dismissible" role="alert" id="divSuccess">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @if (ViewBag.Alert == "1")
+                {
+                    @localizer["SuccessMessage"]
+                }
+                else
+                {
+                    @localizer["FailMessage"]
+                }
+            </div>
+        }
+        <form data-ajax="false" asp-action="AddDealInfo" asp-controller="Deal" data-ajax-success="DealSuccess()" data-ajax-method="post" id="frmDealerDeal" enctype="multipart/form-data">
+            <div class="row px-2">
+
+                <input hidden asp-for="camera" value="0" />
+
+                <div class="form-group col-md-3" id="divDealer">
+                    <label class="">@localizer["Dealer"]:</label>
+                    <select asp-for="DealerId" asp-items="@ViewBag.dealers" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                        <option value="">@localizer["SelectDealer"]</option>
+                    </select>
+                    <span asp-validation-for="DealerId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-3" id="divCustomer" style="display:none">
+                    <label class="">@localizer["Customer"]:</label>
+                    <select asp-for="CustomerId" asp-items="@ViewBag.customers" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                        <option value="">@localizer["SelectCustomer"]</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Currency"]:</label>
+                    <select asp-for="CurrencyId" class="form-control">
+                        <option value="">@localizer["SelectCurrency"]</option>
+                        <option value="1">@shared.Get("AFN")</option>
+                        <option value="2">@shared.Get("PKR")</option>
+                        <option value="3">@shared.Get("USD")</option>
+                    </select>
+                    <span asp-validation-for="CurrencyId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Debit/Credit"]:</label>
+                    <select asp-for="Type" class="form-control">
+                        <option value="">@localizer["DebitCredit"]</option>
+                        <option value="Debit">@localizer["Debit"]</option>
+                        <option value="Credit">@localizer["Credit"]</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["AmountDisplay"]:</label>
+                    <input asp-for="Amount" class="form-control " />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Date"]:</label>
+                    <input asp-for="Date" type="date" class="form-control " />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label class="">@shared.Get("Details"):</label>
+                    <input asp-for="Detail" class="form-control " />
+                </div>
+
+                <div class="form-group col-md-3" style=" max-width: 23%; margin-top: 37px !important;">
+                    <input type="file" class="custom-file-input" name="image" style="cursor:pointer" accept="image/jpeg, image/jpg, image/png" id="browseInput" />
+                    <label class="custom-file-label" style="cursor:pointer" for="browseInput">Choose Image</label>
+                </div>
+                <div class="form-group col-md-2 " style="display: flex; align-items: flex-end;">
+                    <button type="button" class="btn btn-info " data-target="#cameraModal" data-toggle="modal" id="btnActivateCamera"><i class="fa fa-camera"></i></button>&nbsp;
+                    <button type="button" class="btn btn-danger d-none" id="btnDeactivateCamera"><i class="fa fa-window-close"></i></button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-info " style="margin-top:0px;" id="browseBtn"><i class="fa fa-download"></i></button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-danger" style="margin-top: 0px;" id="browseCancel"> <i class="fa fa-trash"></i></button>&nbsp;&nbsp;
+                    <button type="button" id="btnr" class="btn btn-info btn-icon-sm"><span class="fa fa-print"></span> </button>
+                </div>
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="submit" id="btn" class="btn btn-primary btn-icon-sm">@shared.Get("Save") </button>
+                </div>
+            </div>
+        </form>
+
+        <div id="paidBillPrintDebit" class="d-none" style="display: grid; justify-content: space-evenly; justify-items: stretch;  ">
+            <div class="row" style=" align-items: center; margin: 0 100px;">
+                <div style="padding:5px">
+                    <img class="round billDealerImage" src="~/images/StaticImages/logo.png" height="120" width="120" />
+                </div>
+                <div style=" display: flex; flex-direction: column; align-items: center; padding:0,10px;">
+                    <h2 class="title">عبدالوهاب اریوبوال شرکت</h2>
+                    <h2 class="title">Abdul Wahab Aryoub Wal Ltd</h2>
+                </div>
+                <div style="padding:5px">
+                    <img src="~/images/StaticImages/logo.png" height="120" width="120" />
+                </div>
+            </div>
+            <div style="border-radius:1.5rem;">
+                <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                    <h2>@localizer["SerialNumber"]: <b class="serialNo"></b></h2>
+                    <h2 class="font-large-1">  @localizer["ReceivedPrint"]</h2>
+                    <h2>@localizer["Date"]: <b class="date"></b></h2>
+                </div>
+
+                <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                    <h2>@localizer["Mr"]: </h2>
+                    <h2 class="dealerName">  </h2>
+                    <h2>@localizer["S/O"]:</h2>
+                    <h2 class="dealerFName">  </h2>
+                </div>
+
+                <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                    <h2>@localizer["Amount"]: </h2>
+                    <h2 class="paidAmout"> </h2>
+                    <h2>@shared.Get("Details"):</h2>
+                    <h2 class="desc"> </h2>
+                </div>
+
+                <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                    <h2>@localizer["ReciverSignature"]</h2>
+                    <h2> </h2>
+                    <h2>@localizer["Responsable"] </h2>
+                    <h2> </h2>
+                </div>
+
+                <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                    <h2>@localizer["Address"] </h2>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="paidBillPrintCredit" class="d-none" style="display: grid; justify-content: space-evenly; justify-items: stretch;  ">
+            <div class="row" style=" align-items: center; margin: 0 100px;">
+                <div style="padding:5px">
+                    <img class="round billDealerImage" src="~/images/StaticImages/logo.png" height="120" width="120" />
+                </div>
+                <div style=" display: flex; flex-direction: column; align-items: center; padding:0,10px;">
+                    <h2 class="title">عبدالوهاب اریوبوال شرکت</h2>
+                    <h2 class="title">Abdul Wahab Aryoub Wal Ltd</h2>
+                </div>
+                <div style="padding:5px">
+                    <img src="~/images/StaticImages/logo.png" height="120" width="120" />
+                </div>
+            </div>
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                <h2>@localizer["SerialNumber"]: <b class="serialNo"></b></h2>
+                <h2 class="font-large-1">   @localizer["PaidPrint"]</h2>
+                <h2>@localizer["Date"]: <b>@DateTime.Now.Date.ToShortDateString()</b></h2>
+            </div>
+
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                <h2>@localizer["Mr"]: </h2>
+                <h2 class="dealerName">  </h2>
+                <h2>@localizer["S/O"]:</h2>
+                <h2 class="dealerFName">  </h2>
+            </div>
+
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                <h2>@localizer["Amount"]: </h2>
+                <h2 class="paidAmout"> </h2>
+                <h2>@shared.Get("Details"):</h2>
+                <h2 class="desc"> </h2>
+            </div>
+
+
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                <h2>@localizer["ReciverSignature"]</h2>
+                <h2> </h2>
+                <h2>@localizer["Responsable"] </h2>
+                <h2> </h2>
+            </div>
+
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; margin-top: 10px;">
+                <h2>@localizer["Address"] </h2>
+
+            </div>
+        </div>
+
+        <hr class="mt-3" />
+
+        <div id="tblDealerDiv">
+            <table class="table table-striped table-responsive table-responsive-lg table-condensed table-bordered " id="dealTable">
+                <thead class="scrollable-container ps--scrolling-x ">
+                    <tr role="row">
+                        <th class="col-md-2">#</th>
+                        <th class="col-md-2">@localizer["Dealer"]</th>
+                        <th class="col-md-2">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Phone"]</th>
+                        <th class="col-md-1">@localizer["Debit"]</th>
+                        <th class="col-md-1">@localizer["Credit"]</th>
+                        <th class="col-md-2">@localizer["Currency"]</th>
+                        <th class="col-md-2">@shared.Get("Details")</th>
+                        <th class="col-md-2">@localizer["User"]</th>
+                        <th class="col-md-2">@localizer["Date"]</th>
+                        <th class="col-md-2">@shared.Get("Delete")</th>
+                        <th class="col-md-2">@localizer["PaidByImage"]</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="tblCustomerDiv" style="display:none">
+            <table class="table table-striped table-responsive table-responsive-lg table-condensed table-bordered " id="CustomerTable">
+                <thead class="scrollable-container ps--scrolling-x ">
+                    <tr role="row">
+                        <th class="col-md-2">#</th>
+                        <th class="col-md-2">@localizer["Customer"]</th>
+                        <th class="col-md-2">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Phone"]</th>
+                        <th class="col-md-1">@localizer["Debit"]</th>
+                        <th class="col-md-1">@localizer["Credit"]</th>
+                        <th class="col-md-2">@localizer["Currency"]</th>
+                        <th class="col-md-2">@shared.Get("Details")</th>
+                        <th class="col-md-2">@localizer["User"]</th>
+                        <th class="col-md-2">@localizer["Date"]</th>
+                        <th class="col-md-2">@shared.Get("Delete")</th>
+                        <th class="col-md-2">@localizer["PaidByImage"]</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+
+<!--Image modal -->
+<div class="modal fade text-left" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel35"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg p-4" role="document">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; padding: 10px;  ">
+            <span aria-hidden="true" style="color: #f9f9f9; font-size: larger; cursor: pointer ">&times;</span>
+        </button>
+        <img src="" class="round" style="height:100%;width:100%;" id="imageZoom" />
+    </div>
+</div>
+
+@* Camera modal *@
+<div class="modal fade text-left" id="cameraModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel35"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <video id="capturevideo" class="d-none"></video>
+            <br />
+            <button type="button" id="btnCapture" class="btn btn-primary d-none">Capture</button>
+            <hr />
+            <canvas id="capturecanvas" width="230" height="230" class="d-none"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<form data-ajax="true" asp-action="DeleteDealerRecord" data-ajax-method="post" asp-controller="Deal" data-ajax-success="deletedDealer(data)">
+    <input hidden id="deleteIdDealer" name="recordId" />
+    <input hidden id="imagedeleteDealer" name="imagePath" />
+    <button type="submit" class="d-none" id="btnDeleteDealer"></button>
+</form>
+
+<form data-ajax="true" asp-action="DeleteRecord" data-ajax-method="post" asp-controller="Deal" data-ajax-success="deletedCustomer(data)">
+    <input hidden id="deleteIdCus" name="recordId" />
+    <input hidden id="imagedeleteCus" name="imagePath" />
+    <button type="submit" class="d-none" id="btnDeleteCus"></button>
+</form>
+
+<script>
+//const { get } = require("http");
+
+    let image = "";
+    var videoCapture;
+
+    $(function () {
+        $("#divSuccess").delay(6000).fadeOut();
+        $("#DealerId").select2();
+        $("#CustomerId").select2();
+        $("#CustomerId").val(-1)
+        videoCapture = document.getElementById('capturevideo');
+        DealerDeal()
+        CustomerDeal()
+    })
+
+    function DealerDeal() {
+        $.ajax({
+            url: '/Deal/DealersDealInfo/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var deal = "";
+
+                $.each(result, function (i, col) {
+                    var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+                        deal += " <tr >";
+                        deal += "      <td> " + (i + 1) + " </td>";
+                        deal += "      <td> " + col.name + " </td>";
+                        deal += "      <td> " + col.fname + " </td>";
+                        deal += "      <td> " + col.phone + " </td>";
+                        deal += "      <td> " + parseFloat(col.debit).toFixed(2) + " </td>";
+                        deal += "      <td> " + parseFloat(col.credit).toFixed(2) + " </td>";
+                        deal += "      <td> "+cur+"</td>";
+                        deal += "      <td> " + col.details + "  </td>";
+                        deal += "      <td> " + col.employee + "  </td>";
+                        deal += "     <td>  " + col.date + " </td>";
+                        deal += "     <td><button type='button' class='btn btn-danger ' onclick='DeleteDealerRecord(" + col.dealid + ",\"" + col.dealerid + "\",\"" + col.image + "\")' ><i class='fa fa-trash'></i></button></td>";
+                        deal += "      <td> <img class='round' onclick='fnZoomImageDealer( \"" + col.image + "\")' src=" + col.image + " style='height:60px; width:100px; cursor: pointer;' /></td>";
+                        deal += "      </tr>";
+                });
+
+                var table = $("#dealTable").dataTable();
+                table.fnDestroy();
+
+                $("#dealTable>tbody").html("").html(deal);
+                $("#dealTable").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+                });
+
+                $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function CustomerDeal() {
+        $.ajax({
+            url: '/Deal/CustomersDealInfo/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var Cus = "";
+
+                $.each(result, function (i, col) {
+
+                     var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    Cus += " <tr >";
+                    Cus += "      <td> " + (i + 1) + " </td>";
+                    Cus += "      <td> " + col.name + " </td>";
+                    Cus += "      <td> " + col.fname + " </td>";
+                    Cus += "      <td> " + col.phone + " </td>";
+                    Cus += "      <td> " + parseFloat(col.debit).toFixed(2) + " </td>";
+                    Cus += "      <td> " + parseFloat(col.credit).toFixed(2) + " </td>";
+                    Cus += "      <td> " + cur + "  </td>";
+                    Cus += "      <td> " + col.details + "  </td>";
+                    Cus += "      <td> " + col.employee + "  </td>";
+                    Cus += "     <td>  " + col.date + " </td>";
+                    Cus += "     <td><button type='button' class='btn btn-danger ' onclick='DeleteCustomerRecord(" + col.dealid + ",\"" + col.customerid + "\",\"" + col.image + "\")' ><i class='fa fa-trash'></i></button></td>";
+                    Cus += "      <td> <img class='round' onclick='fnZoomImageCustomer( \"" + col.image + "\")' src=" + col.image + " style='height:60px; width:100px; cursor: pointer;' /></td>";
+                    Cus += "      </tr>";
+                });
+
+                var table = $("#CustomerTable").dataTable();
+                table.fnDestroy();
+
+                $("#CustomerTable>tbody").html("").html(Cus);
+                $("#CustomerTable").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                });
+
+              $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    $(document).on('click', '#btnActivateCamera', function () {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // access video stream from webcam
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+                // on success, stream it in video tag
+                window.localStream = stream;
+                videoCapture.srcObject = stream;
+                //videoCapture.src = window.URL.createObjectURL(stream);
+
+                videoCapture.play();
+                activateCamera();
+            }).catch(e => {
+                // on failure/error, alert message.
+                alert("Please Allow: Use Your Camera!");
+            });
+        }
+    });
+
+    $(document).on('click', '#btnDeactivateCamera', function () {
+        // stop video streaming if any
+        localStream.getTracks().forEach(function (track) {
+            if (track.readyState == 'live' && track.kind === 'video') {
+                track.stop();
+                deactivateCamera();
+            }
+        });
+    });
+
+    $(document).on('click', '#btnCapture', function () {
+        document.getElementById('capturecanvas').getContext('2d').drawImage(videoCapture, 0, 0, 230, 230);
+
+        var hidden_canvas = document.getElementById('capturecanvas');
+        var context = hidden_canvas.getContext('2d');
+
+        var width = videoCapture.videoWidth;
+        var height = videoCapture.videoHeight;
+
+        if (width && height) {
+
+            // Setup a canvas with the same dimensions as the video.
+            hidden_canvas.width = width;
+            hidden_canvas.height = height;
+
+            // Make a copy of the current frame in the video on the canvas.
+            context.drawImage(videoCapture, 0, 0, width, height);
+
+            // Turn the canvas image into a dataURL that can be used as a src for our photo.
+            //  hidden_canvas.toDataURL('image/png')
+            image = hidden_canvas.toDataURL('image/png');
+            $("#browseImg").attr("src", hidden_canvas.toDataURL('image/png'));
+            $("#camera").val(hidden_canvas.toDataURL('image/png'));
+            $(".custom-file-input").siblings(".custom-file-label").addClass("selected").html("Image Captrued");
+
+            //$("#browseInput").val(hidden_canvas.toDataURL('image/png').target.result)
+
+        }
+    });
+
+    function activateCamera() {
+        $("#btnActivateCamera").addClass("d-none");
+        $("#btnDeactivateCamera").removeClass("d-none");
+        $("#capturevideo").removeClass("d-none");
+        $("#btnCapture").removeClass("d-none");
+        $("#capturecanvas").removeClass("d-none");
+    }
+
+    function deactivateCamera() {
+        $("#btnDeactivateCamera").addClass("d-none");
+        $("#btnActivateCamera").removeClass("d-none");
+        $("#capturevideo").addClass("d-none");
+        $("#btnCapture").addClass("d-none");
+        $("#capturecanvas").addClass("d-none");
+    }
+
+    $("#browseBtn").click(function () {
+        $("#browseInput").trigger("click");
+    })
+
+    $("#browseImg").click(function () {
+        $("#browseInput").trigger("click");
+    })
+
+    $("#browseInput").change(function () {
+        if (this.files && this.files[0]) {
+            var fileReader = new FileReader();
+            fileReader.readAsDataURL(this.files[0]);
+            fileReader.onload = function (x) {
+                if (x != null)
+                    $("#camera").val('');
+
+                image = x.target.result;
+               let name = $("#browseInput").val().split("\\").pop();
+
+                $(".custom-file-input").siblings(".custom-file-label").addClass("selected").html(name);
+
+            }
+        }
+    })
+
+    $("#browseCancel").click(function () {
+        $(".custom-file-input").siblings(".custom-file-label").addClass("selected").html("Choose Image");
+        $("#browseInput").val("");
+    })
+
+    $("#btnDealer").click(function () {
+        $("#CustomerId").val(-1)
+        $("#divDealer").show()
+        $("#divCustomer").hide()
+        $("#tblDealerDiv").show()
+        $("#tblCustomerDiv").hide()
+
+    })
+
+    $("#btnCustomer").click(function () {
+        $("#DealerId").val(-1)
+        $("#divDealer").hide();
+        $("#divCustomer").show();
+        $("#tblDealerDiv").hide()
+        $("#tblCustomerDiv").show()
+    })
+
+    $("#btnr").click(function () {
+
+
+        if (($("#CustomerId").val() != null || $("#DealerId").val() != null) && $("#Amount").val() != "" && $("#Type").val() != null && $("#CurrencyId").val() != null) {
+
+              $(".billDealerImage").attr("src", image);
+        let dealername = [];
+
+        if ($("#CustomerId").val() == null) {
+            dealername = $("#DealerId :selected").text().split('/');
+            let number = @ViewBag.dealerdealid;
+            $(".serialNo").text(number)
+        }
+        if ($("#DealerId").val() == null) {
+            dealername = $("#CustomerId :selected").text().split('/');
+            let number = @ViewBag.customerdealid;
+            $(".serialNo").text(number)
+        }
+
+        $(".date").text($("#Date").val())
+        $(".dealerName").text(dealername[0])
+        $(".dealerFName").text(dealername[1])
+        $(".paidAmout").text($("#Amount").val() +" ("+$("#CurrencyId :selected").text()+")")
+        $(".desc").text($("#Detail").val())
+
+        let printIt = "";
+
+        if ($("#Type").val() == "Debit") {
+            printIt = "#paidBillPrintDebit"
+            $("#paidBillPrintDebit").removeClass("d-none");
+        } else {
+            printIt = "#paidBillPrintCredit"
+            $("#paidBillPrintCredit").removeClass("d-none");
+        }
+
+        $(printIt).printThis({
+            debug: false,
+            importStyle: true,
+            printContainer: true,
+            loadCSS: "",
+            pageTitle: "",
+            removeInline: false,
+            removeInlineSelector: "*",
+            base: false,
+            formValues: true,
+            canvas: false,
+            doctypeString: '...',
+            removeScripts: false,
+            copyTagClasses: true,
+            beforePrintEvent: null,
+            beforePrint: null,
+            afterPrint: null,
+        });
+
+        function Hide() {
+            $("#paidBillPrintDebit").addClass("d-none",);
+            $("#paidBillPrintCredit").addClass("d-none");
+        }
+
+        setTimeout(function () {
+            Hide();
+        },2000)
+        }
+
+    })
+
+    function fnZoomImageDealer(path) {
+
+        $("#imageZoom").attr("src", path);
+        $("#imageModal").modal("show")
+    }
+
+    function DeleteDealerRecord(id, dealerid, path) {
+        $("#deleteIdDealer").val(id);
+        $("#imagedeleteDealer").val(path);
+
+        swal({
+           title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDeleteDealer").trigger("click");
+            }
+        });
+
+    }
+
+    function deletedDealer(data) {
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        DealerDeal();
+    }
+
+    function fnZoomImageCustomer(path) {
+
+        $("#imageZoom").attr("src", path);
+        $("#imageModal").modal("show")
+    }
+
+    function DeleteCustomerRecord(id, customerid, path) {
+        $("#deleteIdCus").val(id);
+        $("#imagedeleteCus").val(path);
+
+        swal({
+           title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDeleteCus").trigger("click");
+            }
+        });
+
+    }
+
+    function deletedCustomer(data) {
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        CustomerDeal()
+    }
+</script>
+

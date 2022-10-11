@@ -1,0 +1,476 @@
+﻿@model ManulReprotViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#salaryReport").addClass("active")</script>
+
+<div class="col-md-12 container-fluid card">
+    <form asp-controller="ExpenseReport" data-ajax="true" data-ajax-method="post" data-ajax-success="fnManul(data)" asp-action="ManualSalaryReprot">
+        <div class="row card-body box-shadow-1 border-purple border-accent-1">
+
+            <div class="col-md-6 p-0 m-0">
+                <button type="button" onclick="fnCurrentMonth()" class="btn btn-info"> @localizer["CurrentMonthPaid"]</button>
+                <button type="button" onclick="fnLastMonth()" class="btn btn-success">@localizer["LastMonthSalary"]</button>
+                <button type="button" onclick="fnLastYear()" class="btn btn-info">@localizer["LastYearSalary"]</button>
+                <button id="btnManualReport" type="button" style="height:45px;" class="btn  btn-warning">@localizer["SpecificTime"]</button>
+
+            </div>
+            <div id="specific" class="col-md-6 row m-0 p-0" style="display:none">
+
+                <div class="row col-md-5 p-0 m-0">
+                    <h3 class="col-md-push-4 p-0 m-0 mt-1">
+                        @localizer["FromDate"]
+                    </h3>
+                    &nbsp;
+                    <div class="col-md-8 p-0 m-0">
+                        <input class="form-control " style="height:45px;" asp-for="FromDate">
+                    </div>
+
+                </div>
+
+
+                <div class="row col-md-5 p-0 m-0">
+                    <h3 class=" col-md-5 p-0 m-0 mt-1"> @localizer["ToDate"]</h3>
+
+                    <div class="col-md-7 p-0 m-0">
+                        <input class="form-control " style="height:45px;" asp-for="ToDate">
+                    </div>
+                </div>
+                &nbsp;
+                <div class=" col-md-1 p-0 m-0">
+                    <button type="submit" class="btn btn-default  btn-info">@localizer["ShowReport"]</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<br />
+<style>
+    .dt-buttons {
+        float: left;
+    }
+</style>
+<div class="card border-purple border-accent-2" id="divTableSalary" style="margin-top:-40px;">
+
+    <div class="row card-body col-md-12">
+        <div class="text-center offset-md-1 border p-1  col-md-6 mb-1">
+            <h2 id="title" class="blue"> </h2>
+        </div>
+        &nbsp;   &nbsp;   &nbsp;
+        <div class="text-center offset-md-1  p-1  col-md-3 row ">
+            <h3 class="font-weight-bold ">@localizer["TotalPaidSalaries"] :</h3>
+            <h3 id="totalSalary"></h3>
+
+        </div>
+        <div id="divCurrentMonth" class="col-md-12">
+            <table class="table  table-striped table-condensed table-bordered dataTables_scrollHead" id="tblCurrentMonth">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+                        <th style="max-width:10px;">#</th>
+                        <th class="col-md-3">@localizer["Name"]</th>
+                        <th class="col-md-1"> @localizer["Phone"]</th>
+                        <th class="col-md-1">  @localizer["Email"]</th>
+                        <th class="col-md-1"> @localizer["PaidSalary"]</th>
+                        <th class="col-md-2">  @localizer["Date"]</th>
+                        <th class="col-md-1">  @localizer["User"]</th>
+
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+        </div>
+        <div id="divLastMonth" style="display:none" class="col-md-12">
+            <table class="table  table-striped table-condensed table-bordered dataTables_scrollHead" id="tblLastMonth">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+
+                        <th style="max-width:10px;">#</th>
+                        <th class="col-md-3">@localizer["Name"]</th>
+                        <th class="col-md-1"> @localizer["Phone"]</th>
+                        <th class="col-md-1">  @localizer["Email"]</th>
+                        <th class="col-md-1"> @localizer["PaidSalary"]</th>
+                        <th class="col-md-2">  @localizer["Date"]</th>
+                        <th class="col-md-1">  @localizer["User"]</th>
+
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+        </div>
+        <div id="divLastYear" style="display:none" class="col-md-12">
+            <table class="table  table-striped table-condensed table-bordered dataTables_scrollHead" id="tblLastYear">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+
+                        <th style="max-width:10px;">#</th>
+                        <th class="col-md-3">@localizer["Name"]</th>
+                        <th class="col-md-1"> @localizer["Phone"]</th>
+                        <th class="col-md-1">  @localizer["Email"]</th>
+                        <th class="col-md-1"> @localizer["PaidSalary"]</th>
+                        <th class="col-md-2">  @localizer["Date"]</th>
+                        <th class="col-md-1">  @localizer["User"]</th>
+
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+        </div>
+        <div id="divManual" style="display:none" class="col-md-12">
+            <table class="table  table-striped table-condensed table-bordered dataTables_scrollHead" id="tblManual">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+
+                        <th style="max-width:10px;">#</th>
+                        <th class="col-md-3">@localizer["Name"]</th>
+                        <th class="col-md-1"> @localizer["Phone"]</th>
+                        <th class="col-md-1">  @localizer["Email"]</th>
+                        <th class="col-md-1"> @localizer["PaidSalary"]</th>
+                        <th class="col-md-2">  @localizer["Date"]</th>
+                        <th class="col-md-1">  @localizer["User"]</th>
+
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+<script>
+        $(document).ready(function () {
+            fnCurrentMonth();
+            $("#btn").click(function () {
+                $("#divTableSalary").printThis({
+                    debug: false,
+                    importStyle: true,
+                    printContainer: true,
+                    loadCSS: "",
+                    pageTitle: "",
+                    removeInline: false,
+                    removeInlineSelector: "*",
+                    base: false,
+                    formValues: true,
+                    canvas: false,
+                    doctypeString: '...',
+                    removeScripts: false,
+                    copyTagClasses: true,
+                    beforePrintEvent: null,
+                    beforePrint: null,
+                    afterPrint: null
+                });
+
+            })
+        })
+
+        function fnCurrentMonth() {
+            $("#divCurrentMonth").show();
+            $("#divLastMonth").hide();
+            $("#divLastYear").hide();
+            $("#divManual").hide();
+            $("#specific").hide();
+
+            $("#title").text("@localizer["CurrentMonthPaid"]");
+            $.ajax({
+                url: "/ExpenseReport/LoadCurrentMonthsSalaries/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var tr = "";
+                    var total = 0;
+                    $.each(result, function (i, col) {
+                        total += col.paidAmount;
+                        tr += '<tr  role="row">' +
+                            '<td >' + (i + 1) + '</td>' +
+                            '<td >' + col.name + '</td>' +
+                            '<td>' + col.phone + '</td>' +
+                            '<td>' + col.email + '</td>' +
+                            '<td>' + col.paidAmount + '</td>' +
+                            ' <td class="col-md-3">' + col.paidDate + '</td>' +
+                            ' <td>' + col.paidBy + '</td>' +
+                            '</tr>';
+
+                    })
+                    $("#totalSalary").text(total);
+
+                    var table = $("#tblCurrentMonth").dataTable();
+                    table.fnDestroy();
+
+                    $("#tblCurrentMonth>tbody").html("").html(tr);
+                        $("#tblCurrentMonth").DataTable({
+
+                            dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                            stateSave: true,
+                           "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+
+                        });
+                        $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                        $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+        }
+
+        function fnLastMonth() {
+
+            $("#divCurrentMonth").hide();
+            $("#divLastMonth").show();
+            $("#divLastYear").hide();
+            $("#divManual").hide();
+            $("#specific").hide();
+            $("#title").text("@localizer["LastMonthSalary"]");
+            $.ajax({
+                url: "/ExpenseReport/LoadLastMonthsSalaries/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var tr = "";
+                    var total = 0;
+                    $.each(result, function (i, col) {
+                        total += col.paidAmount;
+                        tr += '<tr  role="row">' +
+                            '<td >' + (i + 1) + '</td>' +
+                            '<td >' + col.name + '</td>' +
+                            '<td>' + col.phone + '</td>' +
+                            '<td>' + col.email + '</td>' +
+                            '<td>' + col.paidAmount + '</td>' +
+                            ' <td class="col-md-3">' + col.paidDate + '</td>' +
+                            ' <td>' + col.paidBy + '</td>' +
+                            '</tr>';
+
+                    })
+                    $("#totalSalary").text(total);
+
+                    var table = $("#tblLastMonth").dataTable();
+                    table.fnDestroy();
+
+                    $("#tblLastMonth>tbody").html("").html(tr);
+                        $("#tblLastMonth").DataTable({
+
+                            dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                            stateSave: true,
+
+
+                           "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+
+                        });
+                        $(".buttons-print").text("@shared.Get("Print")")
+                        $(".buttons-copy").text("@shared.Get("Copy")")
+                         $(".buttons-excel").text("@shared.Get("Excel")")
+
+                        $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+
+        }
+
+        function fnLastYear() {
+            $("#divCurrentMonth").hide();
+            $("#divLastMonth").hide();
+            $("#divLastYear").show();
+            $("#divManual").hide();
+
+            $("#title").text("@localizer["LastYearSalary"]");
+            $("#specific").hide();
+            $.ajax({
+                url: "/ExpenseReport/LoadLastYearSalaries/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var tr = "";
+                    var total = 0;
+                    $.each(result, function (i, col) {
+                        total += col.paidAmount;
+                        tr += '<tr  role="row">' +
+                            '<td >' + (i + 1) + '</td>' +
+                            '<td >' + col.name + '</td>' +
+                            '<td>' + col.phone + '</td>' +
+                            '<td>' + col.email + '</td>' +
+                            '<td>' + col.paidAmount + '</td>' +
+                            ' <td class="col-md-3">' + col.paidDate + '</td>' +
+                            ' <td>' + col.paidBy + '</td>' +
+                            '</tr>';
+
+                    })
+                    $("#totalSalary").text(total);
+
+                    var table = $("#tblLastYear").dataTable();
+                    table.fnDestroy();
+
+                    $("#tblLastYear>tbody").html("").html(tr);
+                        $("#tblLastYear").DataTable({
+
+                            dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                            stateSave: true,
+                           "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                        });
+                       $(".buttons-print").text("@shared.Get("Print")")
+                        $(".buttons-copy").text("@shared.Get("Copy")")
+                        $(".buttons-excel").text("@shared.Get("Excel")")
+
+                        $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+                },
+                error: function (err) {
+                    console.log(err);
+                },
+                complete: function () {
+
+                }
+
+            })
+
+        }
+
+        function fnManul(result) {
+
+            $("#divCurrentMonth").hide();
+            $("#divLastMonth").hide();
+            $("#divLastYear").hide();
+            $("#divManual").show();
+
+            $("#title").text("@localizer["SpecificTime"]");
+
+
+            var tr = "";
+            var total = 0;
+            $.each(result, function (i, col) {
+                total += col.paidAmount;
+                tr += '<tr  role="row">' +
+                    '<td >' + (i + 1) + '</td>' +
+                    '<td >' + col.name + '</td>' +
+                    '<td>' + col.phone + '</td>' +
+                    '<td>' + col.email + '</td>' +
+                    '<td>' + col.paidAmount + '</td>' +
+                    ' <td class="col-md-3">' + col.paidDate + '</td>' +
+                    ' <td>' + col.paidBy + '</td>' +
+                    '</tr>';
+
+            })
+            $("#totalSalary").text(total);
+
+            var table = $("#tblManual").dataTable();
+            table.fnDestroy();
+
+            $("#tblManual>tbody").html("").html(tr);
+                $("#tblManual").DataTable({
+
+
+                    dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                    stateSave: true,
+                    "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+
+                });
+
+                $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+        }
+        $("#btnManualReport").click(function () {
+            $("#specific").show();
+
+        })
+</script>
+}

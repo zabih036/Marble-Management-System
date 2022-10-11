@@ -1,0 +1,663 @@
+﻿@model AllViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#financialreport").addClass("active")</script>
+
+@using Microsoft.Extensions.Options
+@inject IOptions<SettingOptions> op
+
+<section id="custom-listgroup">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:#ffffff;">@localizer["FinancialReport"]</h2>
+            <div class="card" style="min-height:100%">
+                <div class="card-header">
+                    <div class="col-md-12" id="reportbtns">
+                        @* //////////////////////  د معلوم وخت راپور///////////////// *@
+                        <div class="col-md-12 container-fluid card">
+                            <form asp-controller="Item" data-ajax="true" data-ajax-method="post" data-ajax-success="loadReport(data)" data-ajax-failure="failed" asp-action="ManualReprot">
+                                <button class="btn btn-info btn-md" onclick="todaysreport()">@localizer["Todays"]</button>
+                                <button class="btn btn-success btn-md" onclick="currentMonth()">@localizer["CurrentMonth"]</button>
+                                <button class="btn btn-warning btn-md" onclick="lastMonth()">@localizer["LastMonth"]</button>
+                                <button class="btn btn-info btn-md" onclick="currentYear()">@localizer["CurrentYear"] </button>
+                                <button class="btn btn-success btn-md" onclick="lastYear()">@localizer["LastYear"]</button>
+                                <button class="btn btn-info btn-md" id="btnManualReport">@localizer["SpecificTime"]</button>
+
+                                <div id="specific" class="col-md-6 row m-0 p-0" style="display:none">
+                                    <div class="row col-md-5 p-0 m-0">
+                                        <h3 class="col-md-push-4 p-0 m-0 mt-1">
+                                            @localizer["FromDate"]
+                                        </h3>
+                                        &nbsp;
+                                        <div class="col-md-8 p-0 m-0">
+                                            <input class="form-control" style="height:45px;" asp-for="manulReport.FromDate">
+                                        </div>
+                                    </div>
+                                    <div class="row col-md-5 p-0 m-0">
+                                        <h3 class=" col-md-5 p-0 m-0 mt-1"> @localizer["ToDate"]</h3>
+                                        <div class="col-md-7 p-0 m-0">
+                                            <input class="form-control" style="height:45px;" asp-for="manulReport.ToDate">
+                                        </div>
+                                    </div>
+                                    &nbsp;
+                                    <div class=" col-md-1 p-0 m-0">
+                                        <button type="submit" class="btn btn-default  btn-info">@localizer["ShowReport"]</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+
+                        @* /////////////////////////////////////////////////// *@
+                        <div class="d-none">
+                            <form data-ajax="true" data-ajax-url="/Item/FetchFinanceReport" data-ajax-success="loadReport(data)" data-ajax-failure="failed" data-ajax-method="post">
+                                <input type="hidden" class="" value="1" name="reportType" id="reportType" />
+                                <button type="submit" id="btnsubmitReport">submit</button>
+                            </form>
+                        </div>
+                    </div>
+                    <a class="heading-elements-toggle"><i class="fa fa-ellipsis font-medium-3"></i></a>
+                    <div class="heading-elements">
+                        <ul class="list-inline mb-0">
+                            <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                            <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                            <li><a class="btn btn-primary" onclick="printReport()"><i class="ft-printer"></i>&nbsp;&nbsp; @shared.Get("Print")</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-content collapse show">
+                    <div class="card-body" id="printable">
+
+                        <div class="row">
+                            <div class="col-md-12 text-center d-none" id="corporation">
+                                <p style="font-style:oblique">
+                                    <label style="font-size:x-large">
+                                       @localizer["AbdulWahab"]
+                                    </label><br />
+                                    <label style="font-size:x-large">@localizer["FinancialReport"]</label><br />
+                                    <label class="float-right" style="font-size:x-large" id="date"></label>
+                                </p>
+                                <br /><br /><br />
+                            </div>
+                            <div class="col-md-4" id="financial1">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">@localizer["AFNReport"]</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:100%;">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Purchase"]:</strong> <strong dir="ltr" class="float-right" id="afghanipurchase">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Sale"]:</strong> <strong dir="ltr" class="float-right" id="afghanisale">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnCustomer"]:</strong> <strong dir="ltr" class="float-right" id="oncustomeraf">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["CustomerPaid"]:</strong> <strong dir="ltr" class="float-right" id="afpaid">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnUs"]:</strong> <strong dir="ltr" class="float-right" id="afonus">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["WePaid"]:</strong> <strong dir="ltr" class="float-right" id="wepaidaf">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-acti nger" style="height:16%"><strong class="float-left">@localizer["Expenses"]:</strong> <strong dir="ltr" class="float-right" id="afghaniexpences">0</strong></a>
+
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left"><label id="afghanilost">@localizer["Lose"]</label> @localizer["Benifit"]: </strong> <strong dir="ltr" class="float-right" id="afghanibenefit">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left"><label id=""></label>  @localizer["Cash"]: </strong> <strong dir="ltr" class="float-right" id="afghaniCash">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left"><label id=""></label>  @localizer["RawItems"]: </strong> <strong dir="ltr" class="float-right" id="afghaniItem">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left"><label id=""></label> @localizer["Processed"]: </strong> <strong dir="ltr" class="float-right" id="afghaniItemPro">0</strong></a>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="financial2">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">@localizer["PKRReport"]</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:100%;">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Purchase"]:</strong> <strong dir="ltr" class="float-right" id="rupepurchase">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Sale"]:</strong> <strong dir="ltr" class="float-right" id="rupesale">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnCustomer"]:</strong> <strong dir="ltr" class="float-right" id="oncustomerpk">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["CustomerPaid"]:</strong> <strong dir="ltr" class="float-right" id="pkpaid">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnUs"]:</strong> <strong dir="ltr" class="float-right" id="pkonus">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["WePaid"]:</strong> <strong dir="ltr" class="float-right" id="wepaidpk">0</strong></a>
+                                    @*<a href="#" class="list-group-item list-group-item-acti nger" style="height:16%"><strong class="float-left">مجموعه مصارف:</strong> <strong class="float-right" id="rupeexpence">0</strong></a>*@
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id="rupelost">@localizer["Lose"]</label> @localizer["Benifit"]:</strong> <strong dir="ltr" class="float-right" id="rupebenefit">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label>@localizer["Cash"]:</strong> <strong dir="ltr" class="float-right" id="rupeCash">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label> @localizer["RawItems"]:</strong> <strong dir="ltr" class="float-right" id="rupeItem">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label> @localizer["Processed"]:</strong> <strong dir="ltr" class="float-right" id="rupeItemPro">0</strong></a>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="financial3">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">@localizer["USDReport"]</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:100%">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Purchase"]:</strong> <strong dir="ltr" class="float-right" id="dollerpurchase">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["Sale"]:</strong> <strong dir="ltr" class="float-right" id="dollersale">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnCustomer"]:</strong> <strong dir="ltr" class="float-right" id="oncustomerus">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["CustomerPaid"]:</strong> <strong dir="ltr" class="float-right" id="uspaid">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["OnUs"]:</strong> <strong dir="ltr" class="float-right" id="usonus">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">@localizer["WePaid"]:</strong> <strong dir="ltr" class="float-right" id="wepaidus">0</strong></a>
+
+                                    @*  <a href="#" class="list-group-item list-group-item-actionger" style="height:16%"><strong class="float-left">مجموعه مصارف:</strong> <strong class="float-right" id="dollerexpece">0</strong></a>*@
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id="dollerlost">@localizer["Lose"]</label> @localizer["Benifit"]:</strong> <strong dir="ltr" class="float-right" id="dollerbenefit">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label> @localizer["Cash"]:</strong> <strong dir="ltr" class="float-right" id="dollerCash">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label> @localizer["RawItems"]:</strong> <strong dir="ltr" class="float-right" id="dollerItem">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left"><label id=""></label> @localizer["Processed"]:</strong> <strong dir="ltr" class="float-right" id="dollerItemPro">0</strong></a>
+                                </div>
+                            </div>
+
+                            @*<div class="col-md-12" id="singleitemReport" style="display:none">
+                                    <form data-ajax="true" asp-controller="Item" asp-action="SingleItemFinancialReport" data-ajax-success="frmSuccess(data)" data-ajax-method="post" id="frmCustomerReg">
+                                        <div class="col-md-10 offset-md-1 row" style="display: flex; flex-direction: row; justify-content: space-around; text-align: center; ">
+
+
+                                            <div class="form-group">
+                                                <label asp-for="purchase.ItemID" class=""></label>
+                                                <select asp-for="purchase.ItemID" onchange="fnSubmit()" asp-items="@ViewBag.item" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%">
+                                                    <option value="">جنس انتخاب کړئ</option>
+                                                </select>
+                                                <span asp-validation-for="purchase.ItemID" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label asp-for="purchase.CurrencyID" class=""></label>
+                                                <select asp-for="purchase.CurrencyID" onchange="fnSubmit()" asp-items="@ViewBag.Currency" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width: 100%;min-height:40px;">
+                                                    <option value="">د پیسو ډول انتخاب کړئ</option>
+                                                </select>
+                                                <span asp-validation-for="purchase.CurrencyID" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="">د راپور ډول</label>
+                                                <select name="itemReportType" onchange="fnSubmit()" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%;min-height:40px;">
+                                                    <option value="0">عمومي راپور</option>
+                                                    <option value="1">د نن ورځې راپور</option>
+                                                    <option value="2">د روان میاشت راپور</option>
+                                                    <option value="3">د تیرې میاشتې راپور</option>
+                                                    <option value="4">د روان کال راپور</option>
+                                                    <option value="5">د تیر کال رابور</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="">ګټه</label>
+                                                <h2 id="oneitem" class="border-primary"style="padding:5px;"></h2>
+                                            </div>
+                                            <div class="col-md-4 float-right" style="margin-top:5% ;display:none">
+                                                <button type="submit" id="btnSubmit" class="btn btn-primary btn-icon-md"><i class="ft-save" id="btnsubmiticon"></i>&nbsp;<lable id="btnsubmitText">تایید</lable></button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="list-group col-md-8 offset-2">
+
+                                        <div class="text-center">
+                                            <h2>اخستلو تفصیل</h2>
+                                        </div>
+                                        <table id="tblpurchase" class="table-bordered "style=" background: repeating-linear-gradient( 45deg, azure, transparent 100px);">
+                                            <thead class="box-shadow-0">
+                                                <tr>
+                                                    <th>کارتن تعداد</th>
+                                                    <th>پاکټ تعداد</th>
+                                                    <th>کارتن کې پاکټ</th>
+                                                    <th>کارتن قیمت</th>
+                                                    <th>مجموعه</th>
+                                                    <th>اخستلو نیټه</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th rowspan="1" colspan="1" id="purcarton"></th>
+                                                    <th rowspan="1" colspan="1" id="purpacket"></th>
+                                                    <th rowspan="1" colspan="1"></th>
+                                                    <th rowspan="1" colspan="1"></th>
+                                                    <th rowspan="1" colspan="1" id="singletotal"></th>
+                                                    <th rowspan="1" colspan="1">ټوټل</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody></tbody>
+                                        </table>
+
+
+                                        <div class="text-center">
+                                            <h2>د خرڅ تفصیل</h2>
+                                        </div>
+                                        <table id="tblsale" class="table-bordered "style="background: repeating-linear-gradient( 45deg, aliceblue, transparent 100px);">
+                                            <thead class="box-shadow-0">
+                                                <tr>
+                                                    <th>کارتن تعداد</th>
+                                                    <th>پاکټ تعداد</th>
+                                                    <th>کارتن کې پاکټ</th>
+                                                    <th>کارتن قیمت</th>
+                                                    <th>مجموعه</th>
+                                                    <th>خرڅ نیټه</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th rowspan="1" colspan="1" id="salecarton"></th>
+                                                    <th rowspan="1" colspan="1" id="salepacket"></th>
+                                                    <th rowspan="1" colspan="1"></th>
+                                                    <th rowspan="1" colspan="1"></th>
+                                                    <th rowspan="1" colspan="1" id="singletotalsale"></th>
+                                                    <th rowspan="1" colspan="1">ټوټل</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody></tbody>
+                                        </table>
+
+                                        <div class="text-center">
+                                            <h2>د ګودام تفصیل</h2>
+                                        </div>
+                                        <table id="tblstock" class="table-bordered "style="background: repeating-radial-gradient(aliceblue, transparent 100px); ">
+                                            <thead class="box-shadow-0">
+                                                <tr>
+                                                    <th>کارتن تعداد</th>
+                                                    <th>پاکټ تعداد</th>
+                                                    <th>کارتن کې پاکټ</th>
+                                                    <th>کارتن قیمت</th>
+                                                    <th>مجموعه</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th rowspan="1" colspan="1" id="stockcarton"></th>
+                                                    <th rowspan="1" colspan="1" id="stockpacket"></th>
+                                                    <th rowspan="1" colspan="1"></th>
+                                                    <th rowspan="1" colspan="1" id="singletotalstock"></th>
+                                                    <th rowspan="1" colspan="1">ټوټل</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            currentYear();
+            LoadCashInHand();
+            FetchStockRawItems();
+            FetchStockProItems();
+            $("#purchase_CurrencyID").val(3)
+            $("#purchase_ItemID").select2();
+
+        })
+        function fnSubmit() {
+            $("#btnSubmit").trigger("click");
+        }
+        function frmSuccess(data) {
+            console.log(data.item2);
+            //////purchase
+            var pur = "";
+            var total = 0.0;
+            var purcarton = 0.0;
+            var purpacket = 0.0;
+            $.each(data.itempurchase, function (i, col) {
+                var carton = col.quantity / col.amountInPackage;
+                var packet = col.quantity % col.amountInPackage;
+                var date = new Date(col.purchaseDate)
+                pur += `<tr>
+                                    <td>${Math.floor(carton)}</td>
+                                    <td>${Math.floor(packet)}</td>
+                                    <td>${col.amountInPackage}</td>
+                                    <td>${parseFloat(col.purchasePrice).toFixed(3)}</td>
+                                    <td>${parseFloat(col.purchasePrice * col.quantity).toFixed(3)}</td>
+                                    <td>${date.toLocaleDateString()}</td>
+                                    </tr>`;
+                total += parseFloat((col.purchasePrice + col.expensePerItem) * col.quantity / col.amountInPackage);
+                purcarton += Math.floor(carton);
+                purpacket += Math.floor(packet);
+            })
+            $("#singletotal").text(parseFloat(total).toFixed(3));
+            $("#purcarton").text((purcarton));
+            $("#purpacket").text((purpacket));
+            $("#tblpurchase>tbody").html('').html(pur);
+
+            //////sale
+            var sale = "";
+            var totalsale = 0.0;
+            var salecarton = 0.0;
+            var salepacket = 0.0;
+            var puritemprice = 0.0;
+            $.each(data.itemsale, function (i, col) {
+                var carton = 0.0;
+                var packet = 0.0;
+                if (col.saleType == "عمده") {
+                    carton = col.quantity / col.amountInPackage;
+                } else {
+                    carton = 0;
+                    packet = col.quantity;
+                }
+
+
+                var date = new Date(col.saleDate)
+                sale += `<tr>
+                                    <td>${Math.floor(carton)}</td>
+                                    <td>${Math.floor(packet)}</td>
+                                    <td>${col.amountInPackage}</td>
+                                    <td>${parseFloat(col.salePrice).toFixed(3)}</td>
+                                    <td>${parseFloat(col.salePrice * col.quantity / col.amountInPackage).toFixed(3)}</td>
+                                    <td>${date.toLocaleDateString()}</td>
+                                    </tr>`;
+                puritemprice += parseFloat(col.purchasePrice * col.quantity / col.amountInPackage);
+                totalsale += parseFloat(col.salePrice * col.quantity / col.amountInPackage);
+                salecarton += Math.floor(carton);
+                salepacket += Math.floor(packet);
+            })
+            $("#singletotalsale").text(parseFloat(totalsale).toFixed(3));
+            $("#salecarton").text(salecarton);
+            $("#salepacket").text(salepacket);
+            $("#oneitem").text(parseFloat(totalsale - puritemprice).toFixed(3));
+            $("#tblsale>tbody").html('').html(sale);
+
+            //////stock
+            var stock = "";
+            var totalstock = 0.0;
+            var stockcarton = 0.0;
+            var stockpacket = 0.0;
+            $.each(data.item2, function (i, col) {
+                var carton = col.totalQuantity / col.amountInPackage;
+                var packet = col.totalQuantity % col.amountInPackage;
+                stock += `<tr>
+                                    <td>${Math.floor(carton)}</td>
+                                    <td>${Math.floor(packet)}</td>
+                                    <td>${col.amountInPackage}</td>
+                                    <td>${parseFloat(col.purchasePrice).toFixed(3)}</td>
+                                    <td>${parseFloat(col.purchasePrice * col.totalQuantity / col.amountInPackage).toFixed(3)}</td>
+                                    </tr>`;
+                totalstock += parseFloat(col.purchasePrice * col.totalQuantity / col.amountInPackage);
+                stockcarton += Math.floor(carton);
+                stockpacket += Math.floor(packet);
+            })
+            $("#singletotalstock").text(parseFloat(totalstock).toFixed(3));
+            $("#stockcarton").text(stockcarton);
+            $("#stockpacket").text(stockpacket);
+            $("#tblstock>tbody").html('').html(stock);
+        }
+
+        function LoadCashInHand() {
+            $.ajax({
+                url: '/Item/FetchCashInHandReport/',
+                type: 'GET',
+                contentType: "application/json",
+                success: function (result) {
+                    var afDebit = 0;
+                    var afCredit = 0;
+                    var pkDebit = 0;
+                    var pKCredit = 0;
+                    var usDebit = 0;
+                    var usCredit = 0;
+                    $.each(result, function (i, col) {
+                        if (col.currency == 1) {
+                            afDebit += col.debit;
+                            afCredit += col.credit;
+                        }
+                        if (col.currency == 2) {
+                            pkDebit += col.debit;
+                            pKCredit += col.credit;
+                        }
+                        if (col.currency == 3) {
+                            usDebit += col.debit;
+                            usCredit += col.credit;
+                        }
+                    })
+
+                    var afRec = afCredit - afDebit;
+                    var pkRec = pKCredit - pkDebit;
+                    var usRec = usCredit - usDebit;
+
+                    $("#afghaniCash").text(afRec.toFixed(3));
+                    $("#rupeCash").text(pkRec.toFixed(3));
+                    $("#dollerCash").text(usRec.toFixed(3));
+
+                },
+                error: function (err) {
+                    console.log(err + "cash")
+                }
+            })
+        }
+
+        failed = function (xhr) {
+            console.log(xhr)
+        }
+
+        function printReport() {
+            $("#corporation").removeClass("d-none");
+            $("#btnSubmit").addClass("d-none");
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            today = yyyy + "-" + mm + "-" + dd;
+            $("#date").text(today);
+            let mainLayout = document.getElementById('printable').innerHTML;
+            var originalContent = document.body.innerHTML;
+            document.body.innerHTML = mainLayout;
+            $(document.body).css({ "background-color": "white" });
+            window.print();
+            document.body.innerHTML = originalContent;
+            $("#corporation").addClass("d-none");
+            $("#btnSubmit").removeClass("d-none");
+        }
+
+        function todaysReport() {
+            $.ajax({
+                url: '/Item/fetchFinanceReport/',
+                type: 'POST',
+                contentType: "application/json",
+                data: '{}',
+                datatype: "JSON",
+                success: function (result) {
+
+                    loadReport(result);
+
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        function FetchStockRawItems() {
+            $.ajax({
+                url: '/Item/FetchStockRawItems/',
+                type: 'POST',
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var tr = "";
+
+                    var afghaniAsset = 0.0;
+                    var rupeAsset = 0.0;
+                    var dollerAsset = 0.0;
+                    $.each(result, function (i, col) {
+                        // alert
+
+                        if (col.currencyid == 1) {
+                            afghaniAsset += (parseFloat(col.quantity) * parseFloat(col.purchaseprice));
+                        }
+                        if (col.currencyid == 2) {
+                            rupeAsset += (parseInt(col.quantity) * parseFloat(col.purchaseprice));
+                        }
+                        if (col.currencyid == 3) {
+                            dollerAsset += (parseInt(col.quantity) * parseFloat(col.purchaseprice));
+
+                        }
+
+                    });
+
+                    $("#afghaniItem").text(afghaniAsset.toFixed(3));
+                    $("#rupeItem").text(rupeAsset.toFixed(3));
+                    $("#dollerItem").text(dollerAsset.toFixed(3));
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        function FetchStockProItems() {
+            $.ajax({
+                url: '/Item/FetchStockProItems/',
+                type: 'POST',
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var tr = "";
+
+                    var afghaniAsset = 0.0;
+                    var rupeAsset = 0.0;
+                    var dollerAsset = 0.0;
+                    $.each(result, function (i, col) {
+                        // alert
+
+                        if (col.currencyid == 1) {
+                            afghaniAsset += (parseFloat(col.quantity) * parseFloat(col.purchaseprice));
+                        }
+                        if (col.currencyid == 2) {
+                            rupeAsset += (parseInt(col.quantity) * parseFloat(col.purchaseprice));
+                        }
+                        if (col.currencyid == 3) {
+                            dollerAsset += (parseInt(col.quantity) * parseFloat(col.purchaseprice));
+
+                        }
+
+                    });
+
+                    $("#afghaniItemPro").text(afghaniAsset.toFixed(3));
+                    $("#rupeItemPro").text(rupeAsset.toFixed(3));
+                    $("#dollerItemPro").text(dollerAsset.toFixed(3));
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        function loadReport(result) {
+            $("#afghanipurchase").text(result.afghaniPur.toFixed(3));
+            $("#afghanisale").text(result.afghaniSale.toFixed(3));
+            $("#oncustomeraf").text(result.afoncus.toFixed(3));
+            $("#afpaid").text(result.afpaid.toFixed(3));
+            $("#afonus").text(result.afonus.toFixed(3));
+            $("#wepaidaf").text(result.afpaidd.toFixed(3));
+            $("#afghaniexpences").text(result.afghaniExpence.toFixed(2));
+
+            $("#afghanibenefit").text(((result.afghaniSale) - result.afghaniExpence).toFixed(3));
+            if (((result.afghaniSale - result.afghaniSalepur) - result.afghaniExpence) < 0) {
+
+                $("#afghanibenefit").addClass("text-danger");
+                $("#afghanilost").addClass("text-danger");
+            } else {
+                $("#afghanibenefit").removeClass("text-danger");
+                $("#afghanilost").removeClass("text-danger");
+            }
+
+            ///////////////////////  Rupe  report  //////////////////////
+            $("#rupepurchase").text((result.rupePur).toFixed(3));
+            $("#rupesale").text(result.rupeSale.toFixed(3));
+            $("#oncustomerpk").text(result.pkoncus.toFixed(3));
+            $("#pkpaid").text(result.pkpaid.toFixed(3));
+            $("#pkonus").text(result.pkonus.toFixed(3));
+            $("#wepaidpk").text(result.pkpaidd.toFixed(3));
+            //$("#rupeexpence").text(result.rupeExpence.toFixed(2));
+            $("#rupebenefit").text(((result.rupeSale) /*- result.rupeExpence*/).toFixed(3));
+            if (((result.rupeSale - result.rupeSalepur) /*- result.rupeExpence*/) < 0) {
+
+                $("#rupebenefit").addClass("text-danger");
+                $("#rupelost").addClass("text-danger");
+            } else {
+                $("#rupebenefit").removeClass("text-danger");
+                $("#rupelost").removeClass("text-danger");
+            }
+            ///////////////////////// Doller  Report  //////////////////
+            $("#dollerpurchase").text((result.dollerPur + result.purExpense).toFixed(3));
+            $("#dollersale").text(result.dollerSale.toFixed(3));
+            $("#oncustomerus").text(result.usoncus.toFixed(3));
+            $("#uspaid").text(result.uspaid.toFixed(3));
+            $("#usonus").text(result.usonus.toFixed(3));
+            $("#wepaidus").text(result.uspaidd.toFixed(3));
+            //$("#dollerexpece").text(result.dollerExpence.toFixed(3));
+            $("#dollerbenefit").text(((result.dollerSale) /*- result.dollerExpence*/).toFixed(3));
+            if (((result.dollerSale - result.dollerSalepur) /*- result.dollerExpence*/) < 0) {
+
+                $("#dollerbenefit").addClass("text-danger");
+                $("#dollerlost").addClass("text-danger");
+            } else {
+                $("#dollerbenefit").removeClass("text-danger");
+                $("#dollerlost").removeClass("text-danger");
+            }
+        }
+
+        function singleItem() {
+            if ($("#btnreport").text() == "د یو جنس مالي راپور") {
+                $("#singleitemReport").show(500);
+                $("#financial1").hide();
+                $("#financial2").hide();
+                $("#financial3").hide();
+                $("#reportbtns").hide();
+                $("#btnreport").text("عمومي مالي راپور")
+            }
+            else {
+                $("#singleitemReport").hide();
+                $("#financial1").show(500);
+                $("#financial2").show(500);
+                $("#financial3").show(500);
+                $("#reportbtns").show();
+
+                $("#btnreport").text("د یو جنس مالي راپور")
+
+            }
+
+        }
+
+        ////////////////////// Assigning report type  //////
+        function todaysreport() {
+            $("#specific").hide();
+            $("#reportType").val(1);
+            $("#btnsubmitReport").trigger("click");
+        }
+
+        function currentMonth() {
+            $("#specific").hide();
+            $("#reportType").val(2);
+            $("#btnsubmitReport").trigger("click");
+        }
+
+        function lastMonth() {
+            $("#specific").hide();
+            $("#reportType").val(3);
+            $("#btnsubmitReport").trigger("click");
+        }
+
+        function currentYear() {
+            $("#specific").hide();
+            $("#reportType").val(4);
+            $("#btnsubmitReport").trigger("click");
+        }
+
+        function lastYear() {
+            $("#specific").hide();
+            $("#reportType").val(5);
+            $("#btnsubmitReport").trigger("click");
+        }
+        /////////////   Manual report  ////////////////
+        $("#btnManualReport").click(function () {
+            $("#specific").show();
+        })
+    </script>
+}

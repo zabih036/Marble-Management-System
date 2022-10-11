@@ -1,0 +1,163 @@
+﻿@model AllViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#benefitActivePage").addClass("active")</script>
+
+<div class="col-md-12">
+    <h2 class="text-center alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:#ffffff;">@localizer["SaledBenefit"]</h2>
+    <div class="card" style="min-height:100%">
+        <div class="card-header box-shadow-2">
+
+
+            <div class="col-md-12" id="reportbtns" style="text-align:center">
+
+                <div class="col-md-12 container-fluid card box-shadow-2" style="text-align:center">
+                    <form asp-controller="Home" data-ajax="true" data-ajax-method="post" data-ajax-success="loadReport(data)" asp-action="ManualReprot">
+                        <button type="button" class="btn btn-info btn-md" onclick="todaysreport()">@localizer["Todays"]</button>
+                        <button type="button" class="btn btn-success btn-md" onclick="currentMonth()">@localizer["CurrentMonth"]</button>
+                        <button type="button" class="btn btn-warning btn-md" onclick="lastMonth()">@localizer["LastMonth"]</button>
+                        <button type="button" class="btn btn-info btn-md" onclick="currentYear()">@localizer["CurrentYear"] </button>
+                        <button type="button" class="btn btn-success btn-md" onclick="lastYear()">@localizer["LastYear"]</button>
+                        <button type="button" class="btn btn-info btn-md" id="btnManualReport">@localizer["Specific"]</button>
+
+                        <div id="specific" class="col-md-10 row  offset-md-1" style="display:none;margin-top:10px;">
+                            <div class="row col-md-5 p-0 m-0">
+                                <h3 class="col-md-push-4 p-0 m-0 mt-1">
+                                    @localizer["FromDate"]
+                                </h3>
+                                &nbsp;
+                                <div class="col-md-8 p-0 m-0">
+                                    <input class="form-control" style="height:45px;" asp-for="manulReport.FromDate">
+                                </div>
+                            </div>
+                            <div class="row col-md-5 p-0 m-0">
+                                <h3 class=" col-md-5 p-0 m-0 mt-1"> @localizer["ToDate"]</h3>
+                                <div class="col-md-7 p-0 m-0">
+                                    <input class="form-control" style="height:45px;" asp-for="manulReport.ToDate">
+                                </div>
+                            </div>
+                            &nbsp;
+                            <div class=" col-md-1 p-0 m-0">
+                                <button type="submit" class="btn btn-default  btn-info">@localizer["ShowReport"]</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top:20px;">
+                            <select id="currenycId" name="currencyId" class="form-control col-md-4 offset-md-4">
+                                <option value="1">@shared.Get("AFN")</option>
+                                <option value="2">@shared.Get("PKR")</option>
+                                <option value="3">@shared.Get("USD")</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-top:20px;">
+                            <input type="text" placeholder="@localizer["BillNo"]" name="BillNo" class="form-control col-md-4 offset-md-4" id="BillNo" />
+                        </div>
+                        <div class=" col-md-1 p-0 m-0 col-md-12">
+                            <button type="submit" class="btn btn-default  btn-primary">@localizer["ShowReport"]</button>
+                        </div>
+                    </form>
+
+                </div>
+
+
+                <div class="alert alert-primary col-md-6 offset-md-3 box-shadow-2">
+                    <h1 style="font-size:30px">@localizer["TotalBenefit"]</h1>
+                    <h1 style="font-size:30px;" id="totalPrice"></h1>
+                </div>
+
+                <div class="d-none">
+                    <form data-ajax="true" data-ajax-url="/Home/FetchFinanceReport" data-ajax-success="loadReport(data)" data-ajax-method="post">
+                        <input type="hidden" class="" value="1" name="reportType" id="reportType" />
+                        <input type="hidden" class="" value="1" name="currencyId" id="curId" />
+                        <button type="submit" id="btnsubmitReport">submit</button>
+                    </form>
+                </div>
+            </div>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis font-medium-3"></i></a>
+        </div>
+        <div class="card-content collapse show">
+            <div class="card-body" id="printable">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            todaysreport();
+        })
+        function todaysReport() {
+            $.ajax({
+                url: '/Home/FetchFinanceReport/?currencyId=' + $("#currenycId").val() + '',
+                type: 'POST',
+                contentType: "application/json",
+                data: '{}',
+                datatype: "JSON",
+                success: function (result) {
+
+                    loadReport(result);
+
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+        function loadReport(result) {
+
+            var sale = 0.0;
+            var pur = 0.0;
+            var discount = 0.0;
+            var total = 0.0;
+            $.each(result, function (i, col) {
+                sale += col.salePrice * col.quantity
+                pur += col.purchasePrice * col.quantity
+            })
+
+            total = sale - pur
+            $("#totalPrice").text(total.toFixed(2));
+        }
+        ////////////////////// Assigning report type  //////
+        function todaysreport() {
+            $("#specific").hide();
+            $("#reportType").val(1);
+            $("#curId").val($("#currenycId").val());
+            $("#btnsubmitReport").trigger("click");
+        }
+        function currentMonth() {
+            $("#specific").hide();
+            $("#reportType").val(2);
+            $("#curId").val($("#currenycId").val());
+            $("#btnsubmitReport").trigger("click");
+        }
+        function lastMonth() {
+            $("#specific").hide();
+            $("#reportType").val(3);
+            $("#curId").val($("#currenycId").val());
+            $("#btnsubmitReport").trigger("click");
+        }
+        function currentYear() {
+            $("#specific").hide();
+            $("#reportType").val(4);
+            $("#curId").val($("#currenycId").val());
+            $("#btnsubmitReport").trigger("click");
+        }
+        function lastYear() {
+            $("#specific").hide();
+            $("#reportType").val(5);
+            $("#curId").val($("#currenycId").val());
+            $("#btnsubmitReport").trigger("click");
+        }
+        /////////////   Manual report  ////////////////
+        $("#btnManualReport").click(function () {
+            $("#specific").show();
+        })
+    </script>
+}

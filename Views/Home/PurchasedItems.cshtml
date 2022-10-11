@@ -1,0 +1,221 @@
+﻿@model ManulReprotViewModel
+
+<script src="~/js/highcharts.js"></script>
+
+<div style="float:right; width:75%;">
+    <form asp-controller="Home" data-ajax="true" data-ajax-method="post" data-ajax-success="fnManul(data)" asp-action="ManualReprotP">
+        <div class="row">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" onclick="fnDaily()" class="btn btn-info">نن ورڅې پیرل شوې</button>&nbsp;
+            <button type="button" onclick="fnWeekly()" class="btn btn-success">تیرې میاشتې پیرل شوې</button>&nbsp;
+            <button type="button" onclick="fnYear()" class="btn btn-info">تیر کال پیرل شوې</button>&nbsp;
+            <button id="btnManualReport" type="button" class="btn btn-warning">د معلوم وخت پیرل شوې</button>&nbsp;&nbsp;
+
+
+        </div><br />
+        <div id="specific" class="col-md-12" style="display:none">
+            <div class="col-md-6 row">
+                <h3 class="col-md-3 mt-1"> د نیټې څخه</h3>
+                <input class="form-control col-md-9" asp-for="FromDate">
+            </div>&nbsp;
+            <div class="col-md-6 row">
+                <h3 class="col-md-4 mt-1"> تر نیټې پورې</h3>
+                <input class="form-control col-md-8" asp-for="ToDate">&nbsp;
+                <button type="submit" class="btn btn-default btn-block btn-info">راپور ښودل</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+<br />
+<br />
+<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto">
+</div>
+
+@section Scripts {
+    @*<script src="~/lib/jquery/dist/jquery.js"></script>*@
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+
+        $(document).ready(function () {
+            fnDaily();
+
+        })
+
+        function fnWeekly() {
+            $("#specific").hide();
+            var titleMessage = "د تیرې میاشتې پیرل شوې: ";
+
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetWeeklyExpenseP",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    var keys = Object.keys(result);
+                    var weeklydata = new Array();
+                    var totalspent = 0.0;
+                    for (var i = 0; i < keys.length; i++) {
+                        var arrL = new Array();
+                        arrL.push(keys[i]);
+                        arrL.push(result[keys[i]]);
+                        totalspent += result[keys[i]];
+                        weeklydata.push(arrL);
+                    }
+                    createCharts(weeklydata, titleMessage, totalspent.toFixed(2));
+                }
+            })
+        }
+
+        function fnDaily() {
+            $("#specific").hide();
+            var titleMessage = "د نن ورځې پیرل شوې";
+
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetDailyExpenseP",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    var keys = Object.keys(result);
+                    var monthlydata = new Array();
+                    var totalspent = 0.0;
+                    for (var i = 0; i < keys.length; i++) {
+                        var arrL = new Array();
+                        arrL.push(keys[i]);
+                        arrL.push(result[keys[i]]);
+                        totalspent += result[keys[i]];
+                        monthlydata.push(arrL);
+                    }
+                    createCharts(monthlydata, titleMessage, totalspent.toFixed(2));
+                }
+            })
+        }
+
+        function fnYear() {
+            $("#specific").hide();
+            var titleMessage = "د تیر کال پیرل شوې: ";
+
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetYearExpenseP",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    var keys = Object.keys(result);
+                    var weeklydata = new Array();
+                    var totalspent = 0.0;
+                    for (var i = 0; i < keys.length; i++) {
+                        var arrL = new Array();
+                        arrL.push(keys[i]);
+                        arrL.push(result[keys[i]]);
+                        totalspent += result[keys[i]];
+                        weeklydata.push(arrL);
+                    }
+                    createCharts(weeklydata, titleMessage, totalspent.toFixed(2));
+                }
+            })
+        }
+
+        function fnManul(result) {
+            var titleMessage = "<strong> د </strong> " + $("#FromDate").val() + "<strong> څخه تر </strong>" + $("#ToDate").val() + "<strong> ټوټل  پیرل شوې </strong> "
+            var keys = Object.keys(result);
+
+            var monthlydata = new Array();
+            var totalspent = 0.0;
+            for (var i = 0; i < keys.length; i++) {
+                var arrL = new Array();
+                arrL.push(keys[i]);
+                arrL.push(result[keys[i]]);
+                totalspent += result[keys[i]];
+                monthlydata.push(arrL);
+            }
+            createCharts(monthlydata, titleMessage, totalspent.toFixed(2));
+        }
+
+        function createCharts(sum, titleText, totalspent) {
+            Highcharts.getOptions().plotOptions.pie.colors = ['#2f7ed8', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#047CF9', '#910000', '#8bbc21'];
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column',
+                    polar: true,
+                    options3d: {
+                        enabled: true,
+                        alpha: 45,
+                        beta: 0,
+                        depth: 50,
+                    }
+                },
+                title: {
+
+                    text: titleText + ' ' + totalspent,
+                    style: {
+                        fontSize: '23px',
+
+                    },
+                },
+                xAxis: {
+                    type: 'category',
+
+                    labels: {
+                        rotation: -15,
+
+                        style: {
+                            fontSize: '20px',
+                            fontFamily: 'Verdana, sans-serif'
+                        }
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+
+                        text: 'پیرل ',
+                        style: {
+                            fontSize: '20px',
+
+                        }
+                    }
+                },
+                legend: {
+                    enabled: false,
+
+
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:17px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{point.key} </td>' +
+                        '<td style="padding:0;font-size:15px;"><b>{point.y:.1f} </b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0,
+                        dataLabels: {
+                            fontSize: '30px',
+                            enabled: true,
+                            format: '{point.y}',
+                            depth: 25
+                        },
+                        showInLegend: true,
+                    },
+                },
+
+                series: [{
+                   // name: 'ملاقات',
+                    colorByPoint: true,
+                    type: 'column',
+                    data: sum,
+                }]
+            });
+        }
+        $("#btnManualReport").click(function () {
+            $("#specific").show();
+
+        })
+    </script>
+}

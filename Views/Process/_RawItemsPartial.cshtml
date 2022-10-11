@@ -1,0 +1,508 @@
+﻿
+@model ProcessItemViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<div id="tblDiv">
+    <table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblRawItems">
+        <thead>
+            <tr role="row">
+                <th>#</th>
+                <th>@localizer["Item"]</th>
+                <th>@localizer["Weight"]</th>
+                <th>@localizer["Price"]</th>
+                <th>@localizer["Stock"]</th>
+                <th>@localizer["Currency"]</th>
+                <th>@localizer["Total"]</th>
+                <th>@localizer["Process"] </th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+                <th rowspan="1" colspan="1"></th>
+            </tr>
+        </tfoot>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div class="modal-content" id="processDiv" style="display:none">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["ProcessItem"]</h4>
+    </div>
+    <div class="modal-body">
+
+        <form data-ajax="true" asp-action="" asp-controller="Process" data-ajax-success="AddItemsToList()" data-ajax-method="post" id="frmProcess">
+            <div class="row px-2">
+
+                <input hidden asp-for="Item2Id" value="" />
+
+                <div class="form-group col-md-1">
+                    <label class="">@localizer["TotalQty"]:</label>
+                    <input disabled id="fromQty" value="" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-1">
+                    <label class="">@localizer["Price"]:</label>
+                    <input disabled value="" id="priceFrom" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ProcessQty"]:</label>
+                    <input asp-for="ProcessedQty" onchange="updateTotalQuantity()" class="form-control " />
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["Item"]:</label>
+                    <select asp-for="ItemId" asp-items="@ViewBag.items" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%">
+                        <option value="">@localizer["SelectItem"]</option>
+                    </select>
+                    <span asp-validation-for="ItemId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["Category"]:</label>
+                    <select asp-for="CategoryId" asp-items="@ViewBag.category" class="form-control" dir="rtl">
+                        <option value="">@localizer["SelectCategory"]</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["Currency"]:</label>
+                    <select asp-for="CurrencyId"  class="form-control" dir="rtl">
+                        <option value="">@localizer["Currency"] </option>
+                        <option value="1">@shared.Get("AFN")</option>
+                        <option value="2">@shared.Get("PKR")</option>
+                        <option value="3">@shared.Get("USD")</option>
+                    </select>
+                    <span asp-validation-for="CurrencyId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label >@localizer["Stock"]:</label>
+                    <select asp-for="StockId" asp-items="@ViewBag.stock" class="form-control " dir="rtl">
+                        <option value="">@localizer["SelectStock"]</option>
+                    </select>
+                    <span asp-validation-for="StockId" class="text-danger"></span>
+                </div>
+
+            </div>
+            <div class="row px-2">
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Price"]:</label>
+                    <input asp-for="Price" class="form-control " />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Weight"]:</label>
+                    <input asp-for="Quantity" class="form-control " />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@shared.Get("Date"):</label>
+                    <input asp-for="ProDate" type="date" class="form-control " />
+                    <span asp-validation-for="ProDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@shared.Get("Details"):</label>
+                    <input id="details" class="form-control " />
+                </div>
+
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="submit" id="btnSubmitToAdd" class="btn btn-primary btn-icon-sm">@localizer["Add"]<i class="ft-plus"></i></button>
+                    &nbsp;&nbsp;
+                    <button type="reset" id="btnResetItem" class="btn d-none btn-warning btn-icon-sm"></button>
+                    <button type="button" id="btnSubmitAll" onclick="fnSubmitItems()" class="hidden-print btn btn-success">@shared.Get("Save") <i class="ft-save"></i></button>
+                </div>
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="reset" id="btnShowList" class="btn btn-warning btn-icon-sm"> @localizer["ItemsList"]<i class="ft-chevron-left"></i></button>
+                </div>
+            </div>
+        </form>
+
+        <div class="col-md-12 d-none justify-content-center" id="billtable">
+            <table class="table  table-active table-bordered">
+                <thead class="col-md-12 " style="background-color:deepskyblue;">
+                    <tr role="row">
+                        <th>#</th>
+                        <th>@localizer["Item"]</th>
+                        <th>@localizer["Category"]</th>
+                        <th>@localizer["Price"]</th>
+                        <th>@localizer["Weight"]</th>
+                        <th>@localizer["Currency"]</th>
+                        <th>@localizer["Total"]</th>
+                        <th>@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+
+                <tbody id="currentselling" style="font-size:small"></tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        allPurchased()
+        $("#ItemId").select2();
+    })
+
+    function allPurchased() {
+        $.ajax({
+            url: '/Process/FetchRawItems/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+                      var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + (i + 1) + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + col.qty + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price).toFixed(2) + "</td> ";
+                    tr += "      <td>" + col.stock + "</td> ";
+                    tr += "      <td>" + cur + "</td> ";
+                    tr += "      <td>" + parseFloat(col.qty * col.price).toFixed(2) + "</td> ";
+                    tr += "      <td><button class='btn btn-outline-info'onclick='ProcessItem(\"" + col.item2id + "\",\"" + col.qty + "\",\"" + col.price + "\")'><i class='ft-refresh-cw'></i>&nbsp; <strong> @localizer["Process"]</strong></button></td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblRawItems").dataTable();
+                table.fnDestroy();
+
+                $("#tblRawItems>tbody").html("").html(tr);
+                $("#tblRawItems").DataTable({
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(),
+                            data;
+                        var intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                    i : 0;
+                        };
+                        qty = api
+                            .column(2, {
+                                page: 'current'
+                            })
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+                        first = api
+                            .column(6, {
+                                page: 'current'
+                            })
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+                        $(api.column(2).footer()).html(
+                            '@localizer["Weight"]' + parseFloat(qty).toFixed(3)
+                        );
+
+                        $(api.column(6).footer()).html(
+                            '@localizer["Total"]' + parseFloat(first).toFixed(2)
+                        );
+                    },
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                    "pageLength": 5,
+                    "language": {
+                    "emptyTable": " @shared.Get("NoDataInTable")",
+                    "info": "@shared.Get("FromToShow")",
+                    "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                    "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                    "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                    "searchPlaceholder": "@shared.Get("Search")",
+                    "zeroRecords": "@shared.Get("NoRecordFound")",
+                    "paginate": {
+                    "first": "@shared.Get("FirstPage")",
+                    "previous": "@shared.Get("Previous")",
+                    "next": "@shared.Get("Next")",
+                    "last": "@shared.Get("Last")"
+                    },
+                    },
+
+
+                });
+
+               $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function ProcessItem(item2id, qty, price) {
+        $("#Item2Id").val(item2id)
+        $("#fromQty").val(qty)
+        $("#priceFrom").val(price)
+
+        $("#tblDiv").hide();
+        $("#processDiv").show(500);
+    }
+
+    var count = 0;
+    var rowId = 0;
+    let row = 1;
+
+    function AddItemsToList() {
+        $("#billtable").removeClass("d-none");
+
+        var saleditem = "";
+
+        saleditem += "  <tr  id='" + row + "'>";
+        saleditem += "     <td class='item'><label>" + row + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#ItemId :selected").text() + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#CategoryId :selected").text() + "</label></td>";
+        saleditem += "     <td><label>" + parseFloat($("#Price").val()).toFixed(2) + "<label</td>";
+        saleditem += "     <td><label>" + parseFloat($("#Quantity").val()).toFixed(2) + "<label</td>";
+        saleditem += "     <td><label>" + $("#CurrencyId :selected").text() + "</label></td>";
+        saleditem += "     <td><label>" + parseFloat($("#Price").val() * $("#Quantity").val()).toFixed(2) + "</label></td>";
+        saleditem += "     <td><button type='button' class='btn btn-danger btnRad' onclick='removeItemFromList(this)' ><i class='fa fa-trash'></i></button></td>";
+        saleditem += "     <td style='display:none'>" + $("#CategoryId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#CurrencyId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#StockId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#details").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#ItemId").val() + "</td>";
+        saleditem += " </tr>";
+
+        row++;
+        $("#currentselling").append(saleditem);
+
+        updateTotalPrice();
+        updateTotalQuantity();
+
+        $("#Quantity").val('')
+        $("#Price").val('')
+        $("#FirstQty").val('')
+        $("#SecondQty").val('')
+    }
+
+    function printItems() {
+        var tr = "";
+        var total = 0;
+        $("#currentselling>tr").each(function (i, col) {
+            tr += "<tr  id='" + rownum + "'>";
+            tr += "<td class='description'>" + $(this).find('td').eq(2).find('label').text() + "</td>";
+            tr += "<td class='singleprice'>" + $(this).find('td').eq(3).find('label').text() + "</td>";
+            tr += "<td class='quantity'>" + parseFloat($(this).find('td').eq(4).find('input').val()) + "</td>";
+            tr += "<td class='price'>" + $(this).find('td').eq(7).find('label').text() + "</td>";
+            tr += " </tr>";
+            total += parseFloat($(this).find('td').eq(7).find('label').text());
+        })
+        tr += "  <tr>";
+        tr += "<td></td>";
+        tr += "<td></td>";
+        tr += "<td>@localizer["Total"]</td>";
+        tr += "<td>" + parseFloat(total).toFixed(2) + "</td>";
+        tr += " </tr>";
+        $("#tblPrint>tbody").html('').html(tr);
+        if (total > 0) {
+
+            $(".ticket").printThis({
+                debug: false,
+                importCSS: true,
+                importStyle: true,
+            });
+        } else {
+            toastr.warning('@localizer["SelectItemFirst"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+
+        }
+
+    }
+
+    function fnSubmitItems() {
+
+        let data = []
+        let items = {}
+        let alltotal = 0.0;
+
+        $("#currentselling>tr").each(function (i, col) {
+            items = {
+                itemid: parseInt($(this).find('td').eq(12).text()),
+                categoryid: parseInt($(this).find('td').eq(8).text()),
+                currencyid: parseInt($(this).find('td').eq(9).text()),
+                stockid: parseInt($(this).find('td').eq(10).text()),
+                price: parseFloat($(this).find('td').eq(3).text()),
+                quantity: parseFloat($(this).find('td').eq(4).text()),
+                details: parseFloat($(this).find('td').eq(11).text()),
+            };
+            alltotal += parseFloat($(this).find('td').eq(6).find('label').text());
+            data.push(items)
+        })
+
+        if (data.length != 0) {
+            $.ajax({
+                url: "/Process/AddProcessedItems/?data=" + JSON.stringify(data) + "&item2id=" + $("#Item2Id").val() + "&fromQuantity=" + $("#ProcessedQty").val() + "&date=" + $("#ProDate").val() + "",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    fnSuccessProccess(result);
+                },
+                error: function (err) {
+                    toastr.error('@localizer["Error"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                }
+            })
+        }
+    }
+
+    function fnSuccessProccess(result) {
+        if (result == "success") {
+            $("#afghaniTotal").text("0");
+            $("#afghaniRemain").text("0");
+            $("#afghaniPay").val("");
+            $("#dealler").val(0);
+            $("#currentselling").empty();
+            $("#billtable").addClass("d-none");
+            $("#btnResetItem").trigger("click");
+            toastr.success("@localizer["Success"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+
+            $("#PurchaseBill").removeAttr("disabled");
+            $("#DealerId").removeAttr("disabled");
+            $("#CurrencyId").removeAttr("disabled");
+            $("#StockId").removeAttr("disabled");
+
+            $("#tblDiv").show();
+            $("#processDiv").hide(500);
+            allPurchased();
+            allWasted();
+            allProcessed();
+        }
+    }
+
+    function updateTotalPrice() {
+        let subtotal = 0.0;
+        $("#currentselling>tr").each(function (i, col) {
+
+            subtotal += parseFloat($(this).find('td').eq(6).find('label').text());
+        })
+        $("#afghaniTotal").text(subtotal.toFixed(2))
+    }
+
+    function updateTotalQuantity() {
+        let totalQty = 0.0;
+        $("#currentselling>tr").each(function (i, col) {
+
+            totalQty += parseFloat($(this).find('td').eq(4).find('label').text());
+        })
+        let fromqty = $("#fromQty").val()
+        let newqty = $("#ProcessedQty").val()
+
+        if (fromqty < newqty) {
+            $("#btnSubmitToAdd").hide();
+            $("#btnSubmitAll").hide();
+            toastr.warning('@localizer["ItemIsMore"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        } else {
+            $("#btnSubmitToAdd").show();
+            $("#btnSubmitAll").show();
+        }
+
+        if (newqty < totalQty) {
+            $("#btnSubmitToAdd").hide();
+            $("#btnSubmitAll").hide();
+            toastr.warning('@localizer["NewItemIsMore"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        }
+        else {
+            $("#btnSubmitToAdd").show();
+            $("#btnSubmitAll").show();
+        }
+    }
+
+    function removeItemFromList(row) {
+        $(row).closest('tr').remove();
+        if ($("#currentselling").children().length < 1) {
+            $("#billtable").addClass("d-none");
+        }
+        updateTotalPrice();
+        $("#afghaniPay").val('')
+        updateTotalQuantity();
+    }
+
+    var rownum = 1;
+    function payAfghani() {
+        var totl = parseFloat($("#afghaniTotal").text()).toFixed(2) - parseFloat($("#afghaniPay").val()).toFixed(2);
+        $("#afghaniRemain").text(parseFloat(totl).toFixed(2));
+    }
+
+    var quantity = 0;
+    function returnItem(saleid, itemid, deallerid, saleprice, quantit) {
+
+        quantity = quantit;
+        $("#saleid").val(saleid);
+        $("#itemidr").val(itemid);
+        if (deallerid != 1) {
+
+            $("#customer").val(deallerid);
+            $("#formamount").removeClass("d-none");
+        } else {
+            $("#formamount").addClass("d-none");
+        }
+
+        $("#saleprice").val(saleprice);
+
+        $("#returnModal").modal("show");
+    }
+
+    function frmSuccessReturn() {
+        $("#btnCloseReturn").trigger("click");
+        todaysreport();
+    }
+
+    function printReport() {
+
+        $("#corporation").removeClass("d-none");
+        $("#btnSubmit").addClass("d-none");
+
+        let mainLayout = document.getElementById('printable').innerHTML;
+        var originalContent = document.body.innerHTML;
+        document.body.innerHTML = mainLayout;
+        $(document.body).css({ "background-color": "white" });
+        window.print();
+        document.body.innerHTML = originalContent;
+
+        $("#corporation").addClass("d-none");
+        $("#btnSubmit").removeClass("d-none");
+
+    }
+
+    $("#btnShowList").click(function () {
+        $("#tblDiv").show();
+        $("#processDiv").hide(500);
+        $("#currentselling").children().remove();
+        $("#billtable").addClass("d-none");
+    })
+</script>

@@ -1,0 +1,354 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CategoryAlreadySaved" xml:space="preserve">
+    <value>کټګورې شتون لرې</value>
+  </data>
+  <data name="ConfirmNotMatch" xml:space="preserve">
+    <value>پټ نوم تایدې غلطه ده</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>تفصیل</value>
+  </data>
+  <data name="EmailAlreadyUsed" xml:space="preserve">
+    <value>نوموړی بریښنالیک استعمال شوی</value>
+  </data>
+  <data name="EmailIsNotCorrect" xml:space="preserve">
+    <value>بریښنالیک سم نه دی</value>
+  </data>
+  <data name="EnterAddress" xml:space="preserve">
+    <value>آدرس ولیکئ</value>
+  </data>
+  <data name="EnterAmount" xml:space="preserve">
+    <value>پیسو اندازه ولیکئ</value>
+  </data>
+  <data name="EnterBill" xml:space="preserve">
+    <value>بیل نمبر ولیکئ</value>
+  </data>
+  <data name="EnterCarNo" xml:space="preserve">
+    <value>موټر نمبر پلیټ ولیکئ</value>
+  </data>
+  <data name="EnterCarNumber" xml:space="preserve">
+    <value>موټر نمبر ولیکئ</value>
+  </data>
+  <data name="EnterCategory" xml:space="preserve">
+    <value>جنس نوع انتخاب کړئ</value>
+  </data>
+  <data name="EnterCategoryName" xml:space="preserve">
+    <value>کټګورې نوم ولیکئ</value>
+  </data>
+  <data name="EnterComissionerNo" xml:space="preserve">
+    <value>ګمرک کمیشن کار نمبر ولیکئ</value>
+  </data>
+  <data name="EnterContractName" xml:space="preserve">
+    <value>قرارداد نوم ولیکئ</value>
+  </data>
+  <data name="EnterCustomerName" xml:space="preserve">
+    <value>مشترې نوم ولیکئ</value>
+  </data>
+  <data name="EnterDate" xml:space="preserve">
+    <value>د یاد داښت لپاره نیټه وټاکئ</value>
+  </data>
+  <data name="EnterDealerName" xml:space="preserve">
+    <value>د کهاتدار نوم ولیکئ</value>
+  </data>
+  <data name="EnterDocumentDetails" xml:space="preserve">
+    <value>د اسنادو په اړه تفصیل ولیکئ</value>
+  </data>
+  <data name="EnterDriverName" xml:space="preserve">
+    <value>ډریور نوم ولیکئ</value>
+  </data>
+  <data name="EnterEigency" xml:space="preserve">
+    <value>طورخم ایجنسې ولیکئ</value>
+  </data>
+  <data name="EnterEmail" xml:space="preserve">
+    <value>بریښنالیک ولیکې</value>
+  </data>
+  <data name="EnterEmployeeName" xml:space="preserve">
+    <value>کارمند نوم ولیکئ</value>
+  </data>
+  <data name="EnterEmptyPlace" xml:space="preserve">
+    <value>د خالې کیدو ځای ولیکئ</value>
+  </data>
+  <data name="EnterExenseType" xml:space="preserve">
+    <value>د مصرف نوع ولیکئ</value>
+  </data>
+  <data name="EnterExpense" xml:space="preserve">
+    <value>مصرف شوې پیسې ولیکئ</value>
+  </data>
+  <data name="EnterFatherName" xml:space="preserve">
+    <value>پلار نوم ولیکئ</value>
+  </data>
+  <data name="EnterFillPlace" xml:space="preserve">
+    <value>د باریدو ځای ولیکئ</value>
+  </data>
+  <data name="EnterFirstQty" xml:space="preserve">
+    <value>د جنس اول وزن ولیکئ</value>
+  </data>
+  <data name="EnterHireDate" xml:space="preserve">
+    <value>ګمارنې نیټه انتخاب کړئ</value>
+  </data>
+  <data name="EnterItemName" xml:space="preserve">
+    <value>د جنس نوم ولیکئ</value>
+  </data>
+  <data name="EnterItemOwner" xml:space="preserve">
+    <value>د مال د مالک نوم ولیکئ</value>
+  </data>
+  <data name="EnterItemPrice" xml:space="preserve">
+    <value>جنس قیمت ولیکئ</value>
+  </data>
+  <data name="EnterItemQty" xml:space="preserve">
+    <value>جنس اندازه ولیکئ</value>
+  </data>
+  <data name="EnterItemQuantity" xml:space="preserve">
+    <value>د جنس وزن ولیکئ</value>
+  </data>
+  <data name="EnterMineName" xml:space="preserve">
+    <value>د معدن نوم ولیکئ</value>
+  </data>
+  <data name="EnterName" xml:space="preserve">
+    <value>نوم ولیکئ</value>
+  </data>
+  <data name="EnterNewPassword" xml:space="preserve">
+    <value>نوی پټ نوم ولیکی</value>
+  </data>
+  <data name="EnterNote" xml:space="preserve">
+    <value>د نوټ تفصیل ولیکئ</value>
+  </data>
+  <data name="EnterOldPasswrd" xml:space="preserve">
+    <value>زوړ پټ نوم ولیکئ</value>
+  </data>
+  <data name="EnterPaid" xml:space="preserve">
+    <value>تادیه شوې پیسې ولیکئ</value>
+  </data>
+  <data name="EnterPassword" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EnterPhone" xml:space="preserve">
+    <value>موبایل شمیره ولیکې</value>
+  </data>
+  <data name="EnterPurchasePrice" xml:space="preserve">
+    <value>د اخستلو قیمت ولیکئ</value>
+  </data>
+  <data name="EnterQty" xml:space="preserve">
+    <value>جنس وزن ولیکئ</value>
+  </data>
+  <data name="EnterRemainderDate" xml:space="preserve">
+    <value>د یاد داښت د وریادولو نیټه وټاکئ</value>
+  </data>
+  <data name="EnterRentPerTon" xml:space="preserve">
+    <value>فی ټن کرایه ولیکئ</value>
+  </data>
+  <data name="EnterReturnQty" xml:space="preserve">
+    <value>د جنس د واپسی اندازه ولیکئ</value>
+  </data>
+  <data name="EnterSalary" xml:space="preserve">
+    <value>معاش ولیکئ</value>
+  </data>
+  <data name="EnterSalePrice" xml:space="preserve">
+    <value>د خرڅ قیمت ولیکئ</value>
+  </data>
+  <data name="EnterSecondQty" xml:space="preserve">
+    <value>د جنس دویم وزن ولیکئ</value>
+  </data>
+  <data name="EnterSeek" xml:space="preserve">
+    <value>بوجونو تعداد ولیکئ</value>
+  </data>
+  <data name="EnterStockLocation" xml:space="preserve">
+    <value>ګودام موقعیت ولیکئ</value>
+  </data>
+  <data name="EnterStockName" xml:space="preserve">
+    <value>ګودام نوم ولیکئ</value>
+  </data>
+  <data name="EnterTotalExpense" xml:space="preserve">
+    <value>ټوټل مصرف ولیکئ</value>
+  </data>
+  <data name="EnterWeight" xml:space="preserve">
+    <value>وزن ولیکئ</value>
+  </data>
+  <data name="ExpenseTypeExist" xml:space="preserve">
+    <value>مصرف نوع شتون لرې</value>
+  </data>
+  <data name="ItemAlreadySaved" xml:space="preserve">
+    <value>نوموړی جنس شتون لرې</value>
+  </data>
+  <data name="PasswordCheck" xml:space="preserve">
+    <value>پټ نوم باید ۶ حروفه نمبر او غټ توری ولرې</value>
+  </data>
+  <data name="PasswordRequired" xml:space="preserve">
+    <value>پټ نوم ولیکئ</value>
+  </data>
+  <data name="PleaseEnterAmount" xml:space="preserve">
+    <value>د تادیه شوې معاش اندازه ولیکئ</value>
+  </data>
+  <data name="PleaseSalectDate" xml:space="preserve">
+    <value>نیټه انتخاب کړئ</value>
+  </data>
+  <data name="SelectCategory" xml:space="preserve">
+    <value>کټګورې انتخاب کړئ</value>
+  </data>
+  <data name="SelectCurrency" xml:space="preserve">
+    <value>پولې واحد انتخاب کړئ</value>
+  </data>
+  <data name="SelectCustomer" xml:space="preserve">
+    <value>مشترې اتخاب کړئ</value>
+  </data>
+  <data name="SelectDate" xml:space="preserve">
+    <value>نیټه انتخاب کړئ</value>
+  </data>
+  <data name="SelectDealer" xml:space="preserve">
+    <value>کهاتدار انتخاب کړئ</value>
+  </data>
+  <data name="SelectDebitCredit" xml:space="preserve">
+    <value>بنام / جمع انتخاب کړئ</value>
+  </data>
+  <data name="SelectDepartment" xml:space="preserve">
+    <value>ډیپارټمنټ انتخاب کړئ</value>
+  </data>
+  <data name="SelectedHasAccount" xml:space="preserve">
+    <value>نومړی کارمند اکاونټ شتون لرې</value>
+  </data>
+  <data name="SelectEmployee" xml:space="preserve">
+    <value>کارمند انتخاب کړئ</value>
+  </data>
+  <data name="SelectExpenseDate" xml:space="preserve">
+    <value>مصرف نیټه انتخاب کړئ</value>
+  </data>
+  <data name="SelectExpenseType" xml:space="preserve">
+    <value>مصرف نوع انتخاب کړئ</value>
+  </data>
+  <data name="SelectImage" xml:space="preserve">
+    <value>د اسنادو تصویر انتخاب کړئ</value>
+  </data>
+  <data name="SelectItem" xml:space="preserve">
+    <value>جنس انتخاب کړئ</value>
+  </data>
+  <data name="SelectItemType" xml:space="preserve">
+    <value>جنس ډول انتخاب کړئ</value>
+  </data>
+  <data name="SelectResponsible" xml:space="preserve">
+    <value>ګودام مسؤل انتخاب کړئ</value>
+  </data>
+  <data name="SelectStock" xml:space="preserve">
+    <value>ګودام انتخاب کړئ</value>
+  </data>
+  <data name="StockAlreadyExist" xml:space="preserve">
+    <value>نوموړی ګودام شتون لرې</value>
+  </data>
+</root>

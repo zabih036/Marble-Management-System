@@ -1,0 +1,380 @@
+﻿@model AllViewModel
+
+@{
+    ViewData["Title"] = "FinancialReport";
+    Layout = "~/Views/Shared/_Metronic.cshtml";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#existItems").addClass("active")</script>
+
+@using Microsoft.Extensions.Options
+@inject IOptions<SettingOptions> op
+
+<section id="custom-listgroup">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:#ffffff;">موجوده اجناسو راپور</h2>
+            <div class="card">
+                <div class="card-header">               
+                    <a class="heading-elements-toggle"><i class="fa fa-ellipsis font-medium-3"></i></a>
+                    <div class="heading-elements">
+                        <ul class="list-inline mb-0">
+                            <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                            <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                            <li><a class="btn btn-primary" onclick="printReport()"><i class="ft-printer"></i>&nbsp;&nbsp; چاپ</a></li>
+                           @* <li><a class="btn btn-primary" onclick="singleItem()"><i class="" id="btnreport">د یو جنس مالي راپور</i></a></li>*@
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-content collapse show">
+                    <div class="card-body" id="printable">
+
+                        <div class="row">
+                            <div class="col-md-12 text-center d-none" id="corporation">
+                                <p style="font-style:oblique">
+                                    <label style="font-size:x-large">
+                                        عبدالوهاب اریوبوال شرکت
+                                    </label><br />
+                                    @*<label style="font-size:larger">@op.Value.CorporationNameEnglish</label>*@<br />
+                                    <label style="font-size:x-large">د موجوده اجناسو راپور</label><br />
+                                    <label class="float-right" style="font-size:x-large" id="date"></label>
+                                </p>
+                                <br /><br /><br />
+                            </div>
+                            @*<div class="col-md-4" id="financial1">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">افغانیو اجناس</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:95%;">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">خام مواد:</strong> <strong class="float-right" id="afraw">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">پراسس  لاندې:</strong> <strong class="float-right" id="afund">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">پراسس شوې:</strong> <strong class="float-right" id="afpro">0</strong></a>
+
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left">:<label id=""></label>  ټوټل مجموعه </strong> <strong class="float-right" id="aftotal">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:xx-large"><strong class="float-left">:<label id=""></label>  تاریخ  تیر </strong> <strong class="float-right" id="afexp">0</strong></a>
+                                </div>
+                            </div>*@
+                            @*<div class="col-md-4" id="financial2">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">کلدارو اجناس</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:95%;">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">خام مواد:</strong> <strong class="float-right" id="pkraw">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">پراسس لاندې:</strong> <strong class="float-right" id="pkund">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">پراسس شوې:</strong> <strong class="float-right" id="pkpro">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left">:<label id=""></label>  ټوټل مجموعه</strong> <strong class="float-right" id="pktotal">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left">:<label id=""></label> تاریخ تیر</strong> <strong class="float-right" id="pkexp">0</strong></a>
+                                </div>
+                            </div>*@
+                            <div class="col-md-4 offset-md-4" id="financial3">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <span class=" alert" style="font-size:21px;font-weight:bold;">ډالرو اجناس</span>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="icon-book-open primary font-large-2 float-right"></i>
+                                    </div>
+                                </div>
+                                <div class="list-group" style="height:95%">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">خام مواد:</strong> <strong class="float-right" id="usraw">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">پراسس لاندې:</strong> <strong class="float-right" id="usund">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">ذخیره:</strong> <strong class="float-right" id="uspro">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:16%"><strong class="float-left">جوړ شوې:</strong> <strong class="float-right" id="usmade">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left">:<label id=""></label>  ټوټل مجموعه</strong> <strong class="float-right" id="ustotal">0</strong></a>
+                                    <a href="#" dir="ltr" class="list-group-item list-group-item-action " style="height:16%;border:1px solid;font-size:large"><strong class="float-left">:<label id=""></label>   تاریخ تیر</strong> <strong class="float-right" id="usexp">0</strong></a>
+                                </div>
+                            </div>
+
+                            @*<div class="col-md-12" id="singleitemReport" style="display:none">
+                                <div class="col-md-6 offset-3">
+                                    <form data-ajax="true" data-ajax-url="/Item/SingleItemFinancialReport" data-ajax-success="frmSuccess(data)" data-ajax-method="post" id="frmCustomerReg">
+
+                                        <div class="form-group col-md-8 float-left">
+                                            <label asp-for="purchase.ItemID" class=""></label>
+                                            <select asp-for="purchase.ItemID" asp-items="@ViewBag.item" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%">
+                                                <option value="">جنس انتخاب کړئ</option>
+                                            </select>
+                                            <span asp-validation-for="purchase.ItemID" class="text-danger"></span>
+
+                                        </div>
+
+                                        <div class="form-group col-md-8 float-left">
+                                            <label asp-for="purchase.CurrencyID" class=""></label>
+                                            <select asp-for="purchase.CurrencyID" asp-items="@ViewBag.Currency" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%">
+                                                <option value="">د پولې واحد انتخاب کړئ</option>
+                                            </select>
+                                            <span asp-validation-for="purchase.CurrencyID" class="text-danger"></span>
+
+                                        </div>
+                                        <div class="form-group col-md-8 float-left">
+                                            <label class="">د راپور ډول</label>
+                                            <select name="itemReportType" class="form-control select2 select2-container select2-container--default select2-container--above" dir="rtl" style="width:100%">
+                                                <option value="0">عمومي راپور</option>
+                                                <option value="1">د نن ورځې راپور</option>
+                                                <option value="2">د روان میاشت راپور</option>
+                                                <option value="3">د تېرې میاشتې راپور</option>
+                                                <option value="4">د روان کال راپور</option>
+                                                <option value="5">د تېر کال رابور</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4 float-right" style="margin-top:5% ;">
+                                            <button type="submit" id="btnSubmit" class="btn btn-primary btn-icon-md"><i class="ft-save" id="btnsubmiticon"></i>&nbsp;<lable id="btnsubmitText">تایید</lable></button>
+
+                                        </div>
+                                    </form>
+                                    <br /><br />
+
+                                </div>
+                                <div class="list-group col-md-6 offset-3" style="height:70%">
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:19%"><strong class="float-left">مجموعه اخیستل:</strong> <strong class="float-right" id="singleitempurchase">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:19%"><strong class="float-left">مجموعه خرڅ:</strong> <strong class="float-right" id="singleitemsale">0</strong></a>
+                                    <a href="#" class="list-group-item list-group-item-action " style="height:19%;border:1px solid;font-size:large"><strong class="float-left">ګڼه یا زیان:</strong> <strong class="float-right" id="singleitembenefit">0</strong></a>
+                                </div>
+
+                            </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        loadReport();
+    })
+    function LoadCashInHand() {
+        $.ajax({
+            url: '/Item/FetchCashInHandReport/',
+            type: 'GET',
+            contentType: "application/json",
+            success: function (result) {
+                console.log(result)
+                var afDebit = 0;
+                var afCredit = 0;
+                var pkDebit = 0;
+                var pKCredit = 0;
+                var usDebit = 0;
+                var usCredit = 0;
+                $.each(result, function (i, col) {
+                    if (col.currency == 1) {
+                        afDebit += col.debit;
+                        afCredit += col.credit;
+                    }
+                    if (col.currency == 2) {
+                        pkDebit += col.debit;
+                        pKCredit += col.credit;
+                    }
+                    if (col.currency == 3) {
+                        usDebit += col.debit;
+                        usCredit += col.credit;
+                    }
+                })
+
+                var afRec = afCredit - afDebit < 0 ? 0 : afCredit - afDebit;
+                var pkRec = pKCredit - pkDebit < 0 ? 0 : pKCredit - pkDebit;
+                var usRec = usCredit - usDebit < 0 ? 0 : usCredit - usDebit;
+
+                $("#afghaniCash").text(afRec.toFixed(2));
+                $("#rupeCash").text(pkRec.toFixed(2));
+                $("#dollerCash").text(usRec.toFixed(2));
+
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function printReport() {
+
+        $("#corporation").removeClass("d-none");
+        $("#btnSubmit").addClass("d-none");
+
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        today = yyyy + "-" + mm + "-" + dd;
+        $("#date").text(today);
+
+        let mainLayout = document.getElementById('printable').innerHTML;
+        var originalContent = document.body.innerHTML;
+        document.body.innerHTML = mainLayout;
+        $(document.body).css({ "background-color": "white" });
+        window.print();
+        document.body.innerHTML = originalContent;
+
+        $("#corporation").addClass("d-none");
+        $("#btnSubmit").removeClass("d-none");
+
+    }
+
+    function loadReport() {
+        $.ajax({
+            url: '/Item/LoadExistItemsReport/',
+            type: 'GET',
+            contentType: "application/json",
+            success: function (result) {
+                console.log(result)
+                //var afRaw = 0;
+                //var pkRaw = 0;
+                //var afPro = 0;
+                //var pkPro = 0;
+                //var afUnd = 0;
+                //var pkUnd = 0;
+                //var afExp = 0;
+                //var pkExp = 0;
+                var usRaw = 0;
+                var usUnd = 0;
+                var usPro = 0;
+                var usExp = 0;
+                var usMade = 0;
+                ////raw items
+                $.each(result.raw, function (i, col) {
+                    //if (col.currencyId == 1) {
+                    //    afRaw += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 2) {
+                    //    pkRaw += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 3) {
+
+                    //}
+                    usRaw += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+                })
+                //$("#afraw").text(afRaw);
+                //$("#pkraw").text(pkRaw);
+                $("#usraw").text(usRaw.toFixed(2));
+                ///// under process
+                $.each(result.under, function (i, col) {
+                    //if (col.currencyId == 1) {
+                    //    afUnd += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 2) {
+                    //    pkUnd += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 3) {
+                    //}
+                    usUnd += col.quantity  * col.purchasePrice;
+
+                })
+                //$("#afund").text(afUnd);
+                //$("#pkund").text(pkUnd);
+                $("#usund").text(usUnd.toFixed(2));
+
+                ///// processed items
+                $.each(result.store, function (i, col) {
+                    //if (col.currencyId == 1) {
+                    //    afPro += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 2) {
+                    //    pkPro += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currencyId == 3) {
+                    //}
+                    usPro += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+
+                })
+                //$("#afpro").text(afPro);
+                //$("#pkpro").text(pkPro);
+                $("#uspro").text(usPro.toFixed(2));
+
+
+                ///// processed items
+                $.each(result.expire, function (i, col) {
+                    //if (col.currency == "افغاني") {
+                    //    afExp += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currency == "کلدارې") {
+                    //    pkExp += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currency == "ډالر") {
+                    //}
+                    usExp += col.quantity / col.amountInPackage * col.purchasePrice;
+
+                })
+                //$("#afexp").text(afExp);
+                //$("#pkexp").text(pkExp);
+                $("#usexp").text(usExp.toFixed(2));
+
+                $.each(result.made, function (i, col) {
+                    //if (col.currency == "افغاني") {
+                    //    afExp += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currency == "کلدارې") {
+                    //    pkExp += col.quantity / col.amountInPackage * col.purchasePrice;
+                    //}
+                    //if (col.currency == "ډالر") {
+                    //}
+                    usMade += col.totalQuantity / col.amountInPackage * col.purchasePrice;
+
+                })
+                $("#usmade").text(usMade.toFixed(2));
+                //$("#aftotal").text(afRaw + afUnd + afPro);
+                //$("#pktotal").text(pkRaw + pkUnd + pkPro);
+                $("#ustotal").text((usRaw + usUnd + usPro + usMade).toFixed(2));
+
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+
+        //$("#afghanipurchase").text(result.afghaniPur.toFixed(2));
+        //$("#afghanisale").text(result.afghaniSale.toFixed(2));
+        //$("#afghanidebit").text(result.afghaniDebit.toFixed(2));
+        //$("#afghanicredit").text(result.afghaniCredit.toFixed(2));
+        //$("#afghaniexpences").text(result.afghaniExpence.toFixed(2));
+
+        //$("#afghanibenefit").text(((result.afghaniSale - result.afghaniSalepur) - result.afghaniExpence).toFixed(2));
+        //if (((result.afghaniSale - result.afghaniSalepur)) < 0) {
+
+        //    $("#afghanibenefit").addClass("text-danger");
+        //    $("#afghanilost").addClass("text-danger");
+        //}
+
+        /////////////////////////  Rupe  report  //////////////////////
+        //$("#rupepurchase").text(result.rupePur.toFixed(2));
+        //$("#rupesale").text(result.rupeSale.toFixed(2));
+        //$("#rupedebit").text(result.rupeDebit.toFixed(2));
+        //$("#rupecredit").text(result.rupeCredit.toFixed(2));
+        //$("#rupeexpence").text(result.rupeExpence);
+        //$("#rupebenefit").text(((result.rupeSale - result.rupeSalepur) - result.rupeExpence).toFixed(2));
+        //if (((result.rupeSale - result.rupeSalepur) - result.rupeExpence) < 0) {
+
+        //    $("#rupebenefit").addClass("text-danger");
+        //    $("#rupelost").addClass("text-danger");
+        //}
+        /////////////////////////// Doller  Report  //////////////////
+        //$("#dollerpurchase").text(result.dollerPur.toFixed(2));
+        //$("#dollersale").text(result.dollerSale.toFixed(2));
+        //$("#dollerdebit").text(result.dollerDebit.toFixed(2));
+        //$("#dollercredit").text(result.dollerCredit.toFixed(2));
+        //$("#dollerexpece").text(result.dollerExpence);
+        //$("#dollerbenefit").text(((result.dollerSale - result.dollerSalepur) - result.dollerExpence).toFixed(2));
+        //if (((result.dollerSale - result.dollerSalepur) - result.dollerExpence) < 0) {
+
+        //    $("#dollerbenefit").addClass("text-danger");
+        //    $("#dollerlost").addClass("text-danger");
+        //}
+    }
+
+</script>

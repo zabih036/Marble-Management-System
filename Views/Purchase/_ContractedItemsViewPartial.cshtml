@@ -1,0 +1,221 @@
+﻿
+@model ReturnItemsViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblContracted">
+    <thead>
+        <tr role="row">
+            <th>@localizer["Bill"]</th>
+            <th>@localizer["Dealer"]</th>
+            <th>@localizer["Item"]</th>
+            <th>@localizer["CarNo"] </th>
+            <th>@localizer["Weight"]</th>
+            <th>@localizer["Price"]</th>
+            <th>@localizer["Currency"]</th>
+            <th>@localizer["Date"]</th>
+            <th>@localizer["Return"]</th>
+            <th>@localizer["Total"]</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+        </tr>
+    </tfoot>
+    <tbody></tbody>
+</table>
+
+<!--Return Modal-->
+
+<div class="modal fade text-left" id="ItemReturnModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel10"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary white">
+                <h4 class="modal-title" id="myModalLabel10">@localizer["ReturnItem"] </h4>
+                <button type="button" id="" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+                <form data-ajax="true" asp-action="ReturnItems" asp-controller="Purchase" data-ajax-success="funSuccessReturny(data)" data-ajax-method="post" id="frm">
+                    <input hidden id="purId" name="purId" />
+                    <input hidden id="Item2Id" name="Item2Id" />
+                    <input hidden id=" existqty" name="" />
+
+                    <div class="form-group">
+                        <label class="">@localizer["Purchased"]:</label>
+                        <input id="secQty" disabled class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="">@localizer["Price"]:</label>
+                        <input id="itemprice" disabled class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label  class="">@localizer["ReturnQty"]:</label>
+                        <input asp-for="ReturnQty"  class="form-control " />
+                        <span asp-validation-for="ReturnQty" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="">@shared.Get("Details"):</label>
+                        <input asp-for="Details"  class="form-control " />
+                    </div>
+
+                    <div class="modal-footer" id="btnSubmits">
+                        <button type="button" class="btn grey btn-outline-secondary" id="btnClose" data-dismiss="modal">@shared.Get("Close")</button>
+                        <button type="submit" id="btnSubmit" class="btn btn-outline-primary">@localizer["Return"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(function () {
+        allContractedItems()
+    })
+    function allContractedItems() {
+        $.ajax({
+            url: '/Purchase/FetchContractedItems/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+
+                      var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + col.billno + "</td> ";
+                    tr += "      <td>" + col.dealer + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + col.carNumber + "</td> ";
+                    tr += "      <td>" + col.secondQty + "</td> ";
+                    tr += "      <td>" + parseFloat(col.secondPrice).toFixed(2) + "</td> ";
+                    tr += "      <td>" + cur + "</td> ";
+                    tr += "      <td>" + col.purchaseDate + "</td> ";
+                    tr += "      <td><button class='btn btn-outline-info'onclick='ReturnItems(\"" + col.purchaseid + "\",\"" + col.dealerid + "\",\"" + col.item2id + "\",\"" + col.existqty + "\",\"" + col.secondPrice + "\",\"" + col.secondQty + "\")'><i class='ft-refresh-cw'></i>&nbsp; <strong> @localizer["Return"]</strong></button></td> ";
+                    tr += "      <td>" + parseFloat(col.secondQty * col.secondPrice).toFixed(2) + "</td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblContracted").dataTable();
+                table.fnDestroy();
+
+                $("#tblContracted>tbody").html("").html(tr);
+                $("#tblContracted").DataTable({
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(),
+                            data;
+                        var intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                    i : 0
+                        };
+
+                        first = api
+                            .column(9, {
+                                page: 'current'
+                            })
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        $(api.column(9).footer()).html(
+                            '@localizer["Total"]' + parseFloat(first).toFixed(2)
+                        );
+                    },
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+
+                });
+
+               $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function ReturnItems(purchaseid, dealerid, item2id, existqty, secondprice,secQty) {
+
+        $("#purId").val(purchaseid)
+        $("#DealerId").val(dealerid)
+        $("#Item2Id").val(item2id)
+        $("#itemprice").val(secondprice)
+        $("#ReturnQty").val(secQty)
+        $("#existqty").val(existqty)
+        $("#secQty").val(secQty)
+
+        $("#ItemReturnModal").modal("show")
+    }
+
+    $("#ReturnQty").keyup(function () {
+        if (parseFloat($("#existqty").val()) < parseFloat($("#ReturnQty").val())) {
+            $("#btnSubmits").addClass('d-none')
+            toastr.warning("@localizer["ItemIsLess"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        } else if (parseFloat($("#secQty").val()) < parseFloat($("#ReturnQty").val())) {
+            $("#btnSubmits").addClass('d-none')
+        } else {
+            $("#btnSubmits").removeClass('d-none')
+        }
+    })
+
+    function funSuccessReturny(data) {
+        $("#ItemReturnModal").modal("hide")
+
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        allContractedItems();
+    }
+</script>

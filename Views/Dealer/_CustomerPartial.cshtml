@@ -1,0 +1,191 @@
+﻿
+@model CustomerViewModel
+
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+<div class="modal-content user-view ">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["RegisterCustomer"] </h4>
+    </div>
+    <div class="modal-body">
+        <form asp-controller="Dealer" data-ajax="true" asp-action="CustomerRegistration" data-ajax-success="funSuccessCustomer(data)" method="post" id="frmCustomer">
+            <div class="row col-md-12 align-items-end justify-content-center pt-2 m-auto">
+                <input hidden asp-for="CustomerId" value="0" />
+                <div class="form-group">
+                    <label  class="">@localizer["Name"]:</label>
+                    <input asp-for="CusName" class="form-control" />
+                    <span asp-validation-for="CusName" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label  class="">@localizer["FName"]:</label>
+                    <input asp-for="CusFName" class="form-control" />
+                    <span asp-validation-for="CusFName" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label  class="">@localizer["Address"]:</label>
+                    <input asp-for="CusAddress" class="form-control" />
+                    <span asp-validation-for="CusAddress" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label class="">@localizer["Phone"]:</label>
+                    <input asp-for="CusPhone" class="form-control" />
+                    <span asp-validation-for="CusPhone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2  user-insert">
+                    <button type="submit" id="btnSubmitCustomer" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                    <button type="reset" id="btnResetCustomer" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+                </div>
+            </div>
+        </form>
+        <section id="divTable">
+            <table class="table table-responsive-md table-striped table-condensed table-bordered dataTables_scrollHead" id="tblCustomer">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+                        <th style="max-width:1%;">#</th>
+                        <th class="col-md-1">@localizer["Name"]</th>
+                        <th class="col-md-1">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Address"]</th>
+                        <th class="col-md-1">@localizer["Phone"] </th>
+                        <th style="max-width:1%;" class="user-edit">  @shared.Get("Edit")</th>
+                        <th style="max-width:1%;" class="user-delete">@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+    </div>
+</div>
+
+<form data-ajax="true" asp-action="DeleteCustomer" data-ajax-method="post" asp-controller="Dealer" data-ajax-success="deletedCustomer(data)">
+    <input hidden id="customerIdd" asp-for="CustomerId" />
+    <button type="submit" class="d-none" id="btnDeleteCustomer"></button>
+</form>
+
+<script>
+        $(document).ready(function () {
+
+            LoadCustomers();
+        })
+
+        function LoadCustomers() {
+            $.ajax({
+                url: "/Dealer/FetchCustomers/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var tr = "";
+                    $.each(result, function (i, col) {
+                        tr += '<tr  role="row">' +
+                            '<td >' + (i + 1) + '</td>' +
+                            '<td >' + col.name + '</td>' +
+                            '<td >' + col.fName + '</td>' +
+                            '<td >' + col.address + '</td>' +
+                            '<td>' + col.phone + '</td>' +
+                            ' <td  class="user-edit"><button type="button" onclick="fnEditCustomer(' + col.customerId + ',\'' + col.name + '\',\'' + col.fName + '\',\'' + col.address + '\',\'' + col.phone + '\')" class="btn btn-primary"><i class="fa fa-edit"></i></button></td>' +
+                            ' <td  class="user-delete"><button type="button" onclick="fnDeleteCustomer(' + col.customerId + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button></td>' +
+                            '</tr>';
+
+                    })
+                    var table = $("#tblCustomer").dataTable();
+                    table.fnDestroy();
+                    $("#tblCustomer>tbody").html("").html(tr);
+
+                    $("#tblCustomer").DataTable({
+                            stateSave: true,
+
+                            "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                             "pageLength": 5,
+                            "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                        });
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+    }
+
+        function funSuccessCustomer(data) {
+         LoadCustomers();
+            $("#frmCustomer")[0].reset();
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            $("#btnSubmitCustomer").text("@shared.Get("Save")");
+          }
+
+        function fnEditCustomer(id, name, fname, address, phone) {
+
+            $("#CustomerId").val(id);
+            $("#CusName").val(name);
+            $("#CusFName").val(fname);
+            $("#CusAddress").val(address);
+            $("#CusPhone").val(phone);
+
+            $("#btnSubmitCustomer").text("@shared.Get("Update")");
+        }
+
+        function fnDeleteCustomer(comId) {
+            $("#customerIdd").val(comId);
+            swal({
+               title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+            }).then((isConfirm) => {
+                if (isConfirm) {
+                    $("#btnDeleteCustomer").trigger("click");
+                }
+            });
+
+        }
+
+    function deletedCustomer(data) {
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadCustomers();
+    }
+
+    $("#btnResetCustomer").click(function () {
+        $("#btnSubmitCustomer").text("@shared.Get("Save")");
+    })
+</script>

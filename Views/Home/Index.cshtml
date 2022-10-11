@@ -1,0 +1,33 @@
+﻿<div class="card box-shadow-1  border-amber border-lighten-3">
+    <div class="card-content">
+        <div class="card-body ">
+            <div class=" text-center pt-1  box-shadow-1  border-amber border-lighten-3" style="background-color:aliceblue">
+                @{
+                    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+                    var language = @culture.RequestCulture.Culture.Name;
+
+                    if (language == "pa")
+                    {
+                                <h1 style="font-size:30px;">
+                                    عبدالوهاب اریوبوال شرکت
+                                </h1>
+
+                    }
+                    else
+                    {
+                        <h1 style="font-size:30px;">
+                            Abdul Wahab Aryoub Wal Company
+                        </h1>
+                    }
+
+                }
+
+
+            </div>
+            <div class="text-center p-0 m-0 ">
+
+                <img src="~/images/StaticImages/home.jpg" style="height:100%;width:100%;" />
+            </div>
+        </div>
+    </div>
+</div>

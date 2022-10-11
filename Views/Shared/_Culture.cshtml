@@ -1,0 +1,34 @@
+﻿
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+
+@inject Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions> locOptions
+
+@{ 
+    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+
+    var cultureList = locOptions.Value.SupportedCultures.Select(x => new SelectListItem { Value = x.Name, Text = localizer.GetString(x.Name)}).ToList();
+
+    string returnUrl = string.IsNullOrWhiteSpace(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+
+
+    var language = @culture.RequestCulture.Culture.Name == "pa" ? "af" : "gb";
+}
+
+
+
+<li class="dropdown dropdown-language nav-item" style=" margin-top: -8px;">
+    <a class="dropdown-toggle nav-link" id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="flag-icon flag-icon-@language"style=" font-size: 20px; border: 2px solid whitesmoke;"></i><span class="selected-language"></span></a>
+    <div class="dropdown-menu" aria-labelledby="dropdown-flag">
+        @if (language == "af")
+        {
+            <a class="dropdown-item" asp-route-returnUrl="@returnUrl" asp-route-culture="pa" asp-action="ManageCulture" asp-controller="Home"><i class="flag-icon flag-icon-af"></i> پشتو</a>
+            <a class="dropdown-item" asp-route-returnUrl="@returnUrl" asp-route-culture="en" asp-action="ManageCulture" asp-controller="Home"><i class="flag-icon flag-icon-gb"></i> انګلیسې</a>
+        }
+        @if (language == "gb")
+        {
+            <a class="dropdown-item" asp-route-returnUrl="@returnUrl" asp-route-culture="pa" asp-action="ManageCulture" asp-controller="Home"><i class="flag-icon flag-icon-af"></i> Pashto</a>
+            <a class="dropdown-item" asp-route-returnUrl="@returnUrl" asp-route-culture="en" asp-action="ManageCulture" asp-controller="Home"><i class="flag-icon flag-icon-gb"></i> English</a>
+        }
+    </div>
+</li>
+

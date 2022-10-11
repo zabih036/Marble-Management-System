@@ -1,0 +1,218 @@
+﻿
+@model ReturnItemsViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblPurchased">
+    <thead>
+        <tr role="row">
+            <th>#</th>
+            <th>@localizer["Item"]</th>
+            <th>@localizer["Category"]</th>
+            <th>@localizer["Weight"]</th>
+            <th>@localizer["Price"]</th>
+            <th>@localizer["Precent"]</th>
+            <th>@localizer["Currency"]</th>
+            <th>@localizer["Total"]</th>
+            <th>@localizer["Stock"]</th>
+            <th>@localizer["ProcessedDate"]</th>
+            <th>@shared.Get("Details")</th>
+            <th>@shared.Get("Edit")</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+        </tr>
+    </tfoot>
+    <tbody></tbody>
+</table>
+
+<!--Return Modal-->
+
+<div class="modal fade text-left" id="ItemReturnModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel10"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary white">
+                <h4 class="modal-title" id="myModalLabel10">@localizer["EditProcessed"]  </h4>
+                <button type="button" id="" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+                <form data-ajax="true" asp-action="ReturnItems" asp-controller="Process" data-ajax-success="funSuccessReturny(data)" data-ajax-method="post" id="frm">
+
+                    <input hidden id="ProcessedId" name="ProcessedId" />
+                    <input hidden id="Item2Idd" name="Item2Idd" />
+
+                    <div class="form-group">
+                        <label class="">@localizer["InStockQty"]:</label>
+                        <input id="existqty" disabled class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="">@localizer["Price"]:</label>
+                        <input id="itemprice" disabled class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label  class="">@localizer["ReturnQty"]</label>
+                        <input asp-for="ReturnQty"  class="form-control " />
+                        <span asp-validation-for="ReturnQty" class="text-danger"></span>
+                    </div>
+
+                    <div class="modal-footer" id="btnSubmits">
+                        <button type="button" class="btn grey btn-outline-secondary" id="btnClose" data-dismiss="modal">@shared.Get("Close")</button>
+                        <button type="submit" id="btnSubmit" class="btn btn-outline-primary">@shared.Get("Edit")</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        allProcessed()
+    })
+
+    function allProcessed() {
+        $.ajax({
+            url: '/Process/FetchProcessedItems/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+                    let percent = (100 * col.quantity) / col.fromqty;
+
+                      var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + (i+1) + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + col.category + "</td> ";
+                    tr += "      <td>" + parseFloat(col.quantity).toFixed(3) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price).toFixed(2) + "</td> ";
+                    tr += "      <td> %" + percent + " </td> ";
+                    tr += "      <td>" + cur + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price * col.quantity).toFixed(2) + "</td> ";
+                    tr += "      <td>" + col.stock + "</td> ";
+                    tr += "      <td>" + col.date + "</td> ";
+                    tr += "      <td>" + col.details + "</td> ";
+                    tr += "      <td><button class='btn btn-outline-warning'onclick='ReturnItems(\"" + col.processId + "\",\"" + col.item2id + "\",\"" + col.quantity + "\",\"" + col.price + "\")'><i class='ft-edit'></i> </button></td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblPurchased").dataTable();
+                table.fnDestroy();
+
+                $("#tblPurchased>tbody").html("").html(tr);
+                $("#tblPurchased").DataTable({
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(),
+                            data;
+                        var intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                    i : 0;
+                        };
+
+                        first = api
+                            .column(7, {
+                                page: 'current'
+                            })
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        $(api.column(7).footer()).html(
+                            '@localizer["Total"]' + parseFloat(first).toFixed(2)
+                        );
+                    },
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                    "pageLength": 5,
+                    "language": {
+                    "emptyTable": " @shared.Get("NoDataInTable")",
+                    "info": "@shared.Get("FromToShow")",
+                    "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                    "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                    "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                    "searchPlaceholder": "@shared.Get("Search")",
+                    "zeroRecords": "@shared.Get("NoRecordFound")",
+                    "paginate": {
+                    "first": "@shared.Get("FirstPage")",
+                    "previous": "@shared.Get("Previous")",
+                    "next": "@shared.Get("Next")",
+                    "last": "@shared.Get("Last")"
+                    },
+                    },
+
+
+                });
+
+               $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function ReturnItems(processedid, item2id, qty, price) {
+
+        $("#ProcessedId").val(processedid)
+        $("#Item2Idd").val(item2id)
+        $("#itemprice").val(price)
+        //$("#ReturnQty").val()
+        $("#existqty").val(qty)
+
+        $("#ItemReturnModal").modal("show")
+    }
+
+    $("#ReturnQty").keyup(function () {
+        if (parseFloat($("#existqty").val()) < parseFloat( $("#ReturnQty").val())) {
+            $("#btnSubmits").addClass('d-none')
+        } else {
+            $("#btnSubmits").removeClass('d-none')
+        }
+    })
+
+    function funSuccessReturny(data) {
+        $("#ItemReturnModal").modal("hide")
+        toastr.success("@localizer["Edited"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        allProcessed();
+        allPurchased();
+        allWasted();
+    }
+</script>

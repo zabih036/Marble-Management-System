@@ -1,0 +1,598 @@
+﻿
+@model BeltyViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<style>
+    #divPrint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .titleStyle {
+        text-shadow: 5px 10px 20px blue;
+        color: darkblue;
+        font-size: 40px;
+    }
+
+    .divCenter {
+        box-shadow: 0 5px 10px 0 darkblue, 0 5px 20px 0 darkblue;
+        background: #919fee;
+        min-width: 97%;
+    }
+
+    .divimage {
+        /*background-image: url("/images/StaticImages/logo.png");*/
+        background-repeat: no-repeat;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+    }
+</style>
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["BeltyForm"]</h4>
+    </div>
+    <div class="modal-body">
+
+        <form data-ajax="true" asp-action="AddBeltyInfo" asp-controller="Purchase" data-ajax-success="BeltySuccess(data)" data-ajax-method="post" id="frmBelty">
+            <div class="row px-2">
+
+                <input asp-for="BeltyId" hidden value="0" />
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["DriverName"]:</label>
+                    <input asp-for="DriverName" class="form-control" />
+                    <span asp-validation-for="DriverName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["FName"]:</label>
+                    <input asp-for="FName" class="form-control" />
+                    <span asp-validation-for="FName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["CarNo"]:</label>
+                    <input asp-for="CarNo" class="form-control" />
+                    <span asp-validation-for="CarNo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Phone"]:</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ContractName"]:</label>
+                    <input asp-for="ContractName" class="form-control" />
+                    <span asp-validation-for="ContractName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["MineName"]:</label>
+                    <input asp-for="MineName" class="form-control" />
+                    <span asp-validation-for="MineName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row px-2">
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["FillPlace"]:</label>
+                    <input asp-for="FillPlace" class="form-control" />
+                    <span asp-validation-for="FillPlace" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["EmptyPlace"]:</label>
+                    <input asp-for="EmptyPlace" class="form-control" />
+                    <span asp-validation-for="EmptyPlace" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ItemOwner"]:</label>
+                    <input asp-for="ItemOwner" class="form-control" />
+                    <span asp-validation-for="ItemOwner" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Weight"]:</label>
+                    <input asp-for="Weight" class="form-control" />
+                    <span asp-validation-for="Weight" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["RentPerTon"]:</label>
+                    <input asp-for="RentPerTon" class="form-control" />
+                    <span asp-validation-for="RentPerTon" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["TotalExpense"]:</label>
+                    <input asp-for="TotalExpense" class="form-control" />
+                    <span asp-validation-for="TotalExpense" class="text-danger"></span>
+                </div>
+
+            </div>
+
+            <div class="row px-2">
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Paid"]:</label>
+                    <input asp-for="Paid" class="form-control" />
+                    <span asp-validation-for="Paid" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Date"]:</label>
+                    <input asp-for="Date" type="date" class="form-control " />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@shared.Get("Details"):</label>
+                    <input asp-for="Details" class="form-control" />
+                    <span asp-validation-for="Details" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="submit" id="btnUpdate" class="btn btn-primary btn-icon-sm">@shared.Get("Save")</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="reset" id="btnResetItem" class="btn btn-warning btn-icon-sm">@shared.Get("Reset")</button>
+                    &nbsp;&nbsp;   &nbsp;&nbsp;
+                    <button type="button" id="btnr" class="btn btn-success btn-icon-sm"><i class="fa fa-print"></i></button>
+                </div>
+            </div>
+        </form>
+
+        <div id="tblDealerDiv">
+            <table class="table table-responsive table-bordered dataTable " id="tblBelty">
+                <thead>
+                    <tr role="row">
+                        <th class="col-md-2">#</th>
+                        <th class="col-md-2">@localizer["DriverName"]</th>
+                        <th class="col-md-2">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Phone"]</th>
+                        <th class="col-md-1">@localizer["CarNo"]</th>
+                        <th class="col-md-1">@localizer["ContractName"]</th>
+                        <th class="col-md-2">@localizer["MineName"]</th>
+                        <th class="col-md-2">@localizer["FillPlace"]</th>
+                        <th class="col-md-2">@localizer["EmptyPlace"]</th>
+                        <th class="col-md-2">@localizer["ItemOwner"]</th>
+                        <th class="col-md-2">@localizer["Weight"]</th>
+                        <th class="col-md-2">@localizer["RentPerTon"]</th>
+                        <th class="col-md-2">@localizer["TotalExpense"]</th>
+                        <th class="col-md-2">@localizer["Paid"]</th>
+                        <th class="col-md-2">@localizer["Remain"]</th>
+                        <th class="col-md-2">@localizer["Date"]</th>
+                        <th class="col-md-2">@shared.Get("Details")</th>
+                        <th class="col-md-2">@shared.Get("Print")</th>
+                        <th class="col-md-2">@shared.Get("Edit")</th>
+                        <th class="col-md-2">@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+
+        <div id="divPrint" class="col-md-12 d-none">
+            <div class="row justify-content-center">
+                <h2 class="titleStyle">  عبدالوهاب اریوبوال شرکت Abdul Wahab Aryoubwal Company </h2>
+            </div>
+            <div class="divCenter">
+                <div class="col-md-12" style=" text-align: center; color: whitesmoke;">
+                    <h2> د مرکزې دفتر نمبر: 0784484510 - 0788575737</h2>
+                    
+                </div>
+                <div class="col-md-12" style="display: flex; flex-direction: column;">
+                    <h2 style="float: right; color: whitesmoke;"> نیټه:<strong class="date"></strong></h2>
+                    <h2 style="float: right; color: whitesmoke;"> مسلسل نمبر:<strong id="serialnumber">3</strong></h2>
+                </div>
+                <div class="col-md-12"style="margin-top: -95px; margin-bottom:10px" >
+                    <img src="~/images/StaticImages/logo.png" style=" width: 120px; height: 120px; float: left;" />
+
+                </div>
+            </div>
+            <div class="col-md-12 divimage" style="max-width: 100%;">
+                <table class="table table-bordered black" style="background-color:ghostwhite; ">
+                    <tr>
+                        <td>د ډریور نوم</td>
+                        <td id="dname">حزب الله</td>
+                        <td>د ډریور د پلار نوم</td>
+                        <td id="dfname">مجید خان</td>
+                        <td>د موټر نمبر پلیت</td>
+                        <td id="dcarno">23334</td>
+                    </tr>
+                    <tr>
+                        <td>د ډریور د موبایل نمبر</td>
+                        <td id="dphone">0778332234</td>
+                        <td>د قرار داد نوم</td>
+                        <td id="contract">نوی قرداد</td>
+                        <td>د معدن نوم</td>
+                        <td id="mine">زور معدن</td>
+                    </tr>
+                    <tr>
+                        <td>د باریدو ځای</td>
+                        <td id="send">خوږیاڼې</td>
+                        <td>د خالی کیدو ځای</td>
+                        <td id="recieve">جلال آباد</td>
+                        <td>د مال د مالک نوم</td>
+                        <td id="owner"> ګل احمد</td>
+                    </tr>
+                    <tr>
+                        <td>وزن</td>
+                        <td id="dweight">230</td>
+                        <td>فی ټن کرایه</td>
+                        <td id="rentper">100</td>
+                        <td>ټوټل خرچه</td>
+                        <td id="totalepx">2000</td>
+                    </tr>
+                    <tr>
+                        <td>جمله کرایه</td>
+                        <td id="totalrent">2000</td>
+                        <td>وصول شوی روپۍ</td>
+                        <td id="totalpaid">4000</td>
+                        <td>بقایا روپۍ</td>
+                        <td id="remain">4000</td>
+                    </tr>
+                </table>
+
+                <div class="col-md-12">
+                    <h3 style="float: right; ">نوټ: له پورته ذکر شوې تاریخ څخه به درې میاشتې وروسته کرایه ورکول کیږې. </h3>
+                    <h3 style="float: left; "> د شرکت د منشې لاسلیک</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Return Modal-->
+
+<div class="modal fade text-left" id="payMoneyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel10"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary white">
+                <h4 class="modal-title" id="myModalLabel10">@localizer["PayMoney"] </h4>
+                <button type="button" id="" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+                <form data-ajax="true" asp-action="DriverPayement" asp-controller="Purchase" data-ajax-success="fnSuccessPayment(data)" data-ajax-method="post" id="frm">
+                    <input hidden id="recordId" name="recordId" />
+
+                    <div class="form-group">
+                        <label class="">@localizer["RemainRent"]:</label>
+                        <input  id="remainRent" disabled class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="">@localizer["NewPayment"]:</label>
+                        <input id="newPayment" onkeyup="fnCheckRemain()" required name="newPayment" type="text" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="">@localizer["NewRemain"]:</label>
+                        <input type="text" id="newRemainAmount" disabled class="form-control " />
+                    </div>
+
+                    <div class="modal-footer" id="btnSubmits">
+                        <button type="submit" id="btnSubmitReturn" class="btn btn-outline-primary">@localizer["Pay"]</button>
+                        <button type="button" class="btn grey btn-outline-secondary" id="btnClose" data-dismiss="modal">@shared.Get("Close")</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<form data-ajax="true" asp-action="DeleteMineBelty" data-ajax-method="post" asp-controller="Purchase" data-ajax-success="deletedDealer(data)">
+    <input  hidden id="deleteIdDealer" name="recordId" />
+    <button type="submit" class="d-none" id="btnDeleteDealer"></button>
+</form>
+
+<script>
+    $(function () {
+        LoadBelties();
+    })
+
+    function fnCheckRemain() {
+        var remain = parseFloat($("#remainRent").val());
+        var newPay = parseFloat($("#newPayment").val());
+
+        if (newPay > remain) {
+            $("#btnSubmits").addClass("d-none")
+        } else {
+            $("#btnSubmits").removeClass("d-none")
+        }
+        $("#newRemainAmount").val(remain - newPay)
+
+    }
+
+    function fnSuccessPayment(data) {
+        if (data == "Success") {
+        toastr.success("@localizer["PaymentSuccess"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadBelties();
+            $("#payMoneyModal").modal("hide");
+        }
+    }
+
+    function LoadBelties() {
+        $.ajax({
+            url: '/Purchase/LoadBelties/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var deal = "";
+
+                $.each(result, function (i, col) {
+                    var remain = parseFloat(((parseFloat(col.weight) * parseFloat(col.rent)) + col.expense) - parseFloat(col.paid)).toFixed(3);
+
+                        deal += " <tr >";
+                        deal += "      <td> " + (i + 1) + " </td>";
+                        deal += "      <td> " + col.name + " </td>";
+                        deal += "      <td> " + col.fname + " </td>";
+                        deal += "      <td> " + col.phone + " </td>";
+                        deal += "      <td> " + col.carno + " </td>";
+                        deal += "      <td> " + col.contract + " </td>";
+                        deal += "      <td> " + col.mine + " </td>";
+                        deal += "      <td> " + col.fill + " </td>";
+                        deal += "      <td> " + col.empty + " </td>";
+                        deal += "      <td> " + col.owner + " </td>";
+                        deal += "      <td> " + parseFloat(col.weight).toFixed(3) + " </td>";
+                        deal += "      <td> " + parseFloat(col.rent).toFixed(3) + " </td>";
+                        deal += "      <td> " + parseFloat(col.expense).toFixed(3) + " </td>";
+                        deal += "      <td> " + parseFloat(col.paid).toFixed(3) + " </td>";
+                        deal += "      <td style='cursor: pointer' onclick='PayRent(\"" + col.id + "\",\"" + remain + "\")'> " + remain + " </td>";
+                        deal += "     <td>  " + col.date + " </td>";
+                    deal += "      <td> " + col.details + "  </td>";
+                    deal += "     <td><button type='button' class='btn btn-info ' onclick='PrintRecord(" + col.id + ",\"" + col.date + "\",\"" + col.details + "\",\"" + col.paid + "\",\"" + col.expense + "\",\"" + col.rent + "\",\"" + col.weight + "\",\"" + col.owner + "\",\"" + col.empty + "\",\"" + col.fill + "\",\"" + col.mine + "\",\"" + col.contract + "\",\"" + col.carno + "\",\"" + col.phone + "\",\"" + col.fname + "\",\"" + col.name + "\")' ><i class='fa fa-print'></i></button></td>";
+                        deal += "     <td><button type='button' class='btn btn-primary ' onclick='EditRecord(" + col.id + ",\"" + col.details + "\",\"" + col.paid + "\",\"" + col.expense + "\",\"" + col.rent + "\",\"" + col.weight + "\",\"" + col.owner + "\",\"" + col.empty + "\",\"" + col.fill + "\",\"" + col.mine + "\",\"" + col.contract + "\",\"" + col.carno + "\",\"" + col.phone + "\",\"" + col.fname + "\",\"" + col.name + "\")' ><i class='fa fa-edit'></i></button></td>";
+                        deal += "     <td><button type='button' class='btn btn-danger ' onclick='DeleteDealerRecord(" + col.id + ")' ><i class='fa fa-trash'></i></button></td>";
+                        deal += "      </tr>";
+                });
+
+                var table = $("#tblBelty").dataTable();
+                table.fnDestroy();
+
+                $("#tblBelty>tbody").html("").html(deal);
+                $("#tblBelty").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+                });
+
+
+                $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function PayRent(id, remain) {
+        $("#recordId").val(id);
+        $("#remainRent").val(remain);
+        $("#payMoneyModal").modal("show");
+    }
+
+      function PrintRecord(id,date,detials,paid,expense,rent,weight,owner,empty,fill,mine,contract,carno,phone,fname,name) {
+          $("#serialnumber").text(id)
+          $(".date").text(date)
+          $("#dname").text(name)
+          $("#dfname").text(fname)
+          $("#dcarno").text(carno)
+          $("#dphone").text(phone)
+          $("#contract").text(contract)
+          $("#mine").text(mine)
+          $("#send").text(fill)
+          $("#recieve").text(empty)
+          $("#owner").text(owner)
+          $("#dweight").text(weight)
+          $("#rentper").text(rent)
+          $("#totalepx").text(expense)
+          $("#totalrent").text((parseFloat(rent) * parseFloat(weight)))
+          $("#totalpaid").text(paid)
+          $("#remain").text(((parseFloat(rent) * parseFloat(weight)) - parseFloat(paid)) + parseFloat(expense) )
+
+          $("#divPrint").removeClass("d-none");
+
+           $("#divPrint").printThis({
+               debug: false,
+               importStyle: true,
+               printContainer: true,
+               loadCSS: "",
+               pageTitle: "",
+               removeInline: false,
+               removeInlineSelector: "*",
+               base: false,
+               formValues: true,
+               canvas: false,
+               doctypeString: '...',
+               removeScripts: false,
+               copyTagClasses: true,
+               beforePrintEvent: null,
+               beforePrint: null,
+               afterPrint: null,
+           });
+
+          function hideBelty() {
+              $("#divPrint").addClass("d-none");
+          }
+
+          setTimeout(function () {
+              hideBelty();
+          }, 2000)
+
+    }
+
+    function EditRecord(id,detials,paid,expense,rent,weight,owner,empty,fill,mine,contract,carno,phone,fname,name) {
+        $("#BeltyId").val(id);
+        $("#Detials").val(detials);
+        $("#Paid").val(paid);
+        $("#TotalExpense").val(expense);
+        $("#RentPerTon").val(rent);
+        $("#Weight").val(weight);
+        $("#ItemOwner").val(owner);
+        $("#EmptyPlace").val(empty);
+        $("#FillPlace").val(fill);
+        $("#MineName").val(mine);
+        $("#ContractName").val(contract);
+        $("#CarNo").val(carno);
+        $("#Phone").val(phone);
+        $("#FName").val(fname);
+        $("#DriverName").val(name);
+
+        $("#btnUpdate").text("@shared.Get("Update")");
+    }
+
+     function DeleteDealerRecord(id) {
+        $("#deleteIdDealer").val(id);
+
+        swal({
+           title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDeleteDealer").trigger("click");
+            }
+        });
+
+    }
+
+    function deletedDealer(data) {
+        toastr.success("@localizer["Deleted"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        LoadBelties();
+    }
+
+
+    $("#btnr").click(function () {
+
+
+        if ($("#DriverName").val() != null && $("#FName").val() != null &&
+            $("#CarNo").val() != "" && $("#Phone").val() != null &&
+            $("#ContractName").val() != "" && $("#MineName").val() != null &&
+            $("#FillPlace").val() != "" && $("#EmptyPlace").val() != null &&
+            $("#ItemOwner").val() != "" && $("#Weight").val() != null &&
+            $("#RentPerTon").val() != "" && $("#TotalExpense").val() != null &&
+            $("#Paid").val() != "" && $("#TotalExpense").val() != null)
+        {
+            let number = @ViewBag.beltyid;
+
+            $("#divPrint").removeClass("d-none");
+
+
+            $("#serialnumber").text(number)
+            $("#dname").text($("#DriverName").val())
+            $(".date").text($("#Date").val())
+            $("#dfname").text($("#FName").val())
+            $("#dcarno").text($("#CarNo").val())
+            $("#dphone").text($("#Phone").val())
+            $("#contract").text($("#ContractName").val())
+            $("#mine").text($("#MineName").val())
+            $("#send").text($("#FillPlace").val())
+            $("#recieve").text($("#EmptyPlace").val())
+            $("#owner").text($("#ItemOwner").val())
+            $("#dweight").text($("#Weight").val())
+            $("#rentper").text($("#RentPerTon").val())
+            $("#totalepx").text($("#TotalExpense").val())
+            $("#totalrent").text((parseFloat($("#RentPerTon").val()) * parseFloat($("#Weight").val())))
+            $("#totalpaid").text($("#Paid").val())
+            $("#remain").text((parseFloat($("#RentPerTon").val()) * parseFloat($("#Weight").val()) + parseFloat($("#TotalExpense").val())) - parseFloat($("#Paid").val()))
+
+
+
+
+        $("#divPrint").printThis({
+            debug: false,
+            importStyle: true,
+            printContainer: true,
+            loadCSS: "",
+            pageTitle: "",
+            removeInline: false,
+            removeInlineSelector: "*",
+            base: false,
+            formValues: true,
+            canvas: false,
+            doctypeString: '...',
+            removeScripts: false,
+            copyTagClasses: true,
+            beforePrintEvent: null,
+            beforePrint: null,
+            afterPrint: null,
+        });
+
+        function hideBelty() {
+            $("#divPrint").addClass("d-none");
+        }
+
+        setTimeout(function () {
+            hideBelty();
+        }, 2000)
+    }
+    })
+
+        function BeltySuccess(data) {
+            $("#frmBelty")[0].reset();
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadBelties();
+            $("#btnUpdate").text("@shared.Get("Save")");
+        }
+</script>

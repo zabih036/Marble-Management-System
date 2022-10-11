@@ -1,0 +1,753 @@
+﻿
+@model PKBeltyViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<style>
+    #divPrint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .titleStyle {
+        text-shadow: 5px 10px 20px blue;
+        color: darkblue;
+        font-size: 40px;
+    }
+
+    .divCenter {
+        box-shadow: 0 5px 10px 0 darkblue, 0 5px 20px 0 darkblue;
+        background: #919fee;
+        min-width: 97%;
+    }
+
+    td {
+        word-break: break-all;
+    }
+
+    .table td {
+        padding: 10px;
+    }
+
+    .divimage {
+        /*background-image: url("/images/StaticImages/logo.png");*/
+        background-repeat: no-repeat;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+    }
+</style>
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["BeltyForm"]</h4>
+    </div>
+    <div class="modal-body">
+
+        <form data-ajax="true" asp-action="" asp-controller="Process" data-ajax-success="AddItemsToBill1()" data-ajax-method="post" id="frmBelty">
+            <div class="row px-2">
+
+                <input asp-for="BeltyId" hidden value="0" />
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["DriverName"]:</label>
+                    <input asp-for="DriverName" class="form-control" />
+                    <span asp-validation-for="DriverName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["FName"]:</label>
+                    <input asp-for="FName" class="form-control" />
+                    <span asp-validation-for="FName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["CarNo"]:</label>
+                    <input asp-for="CarNo" class="form-control" />
+                    <span asp-validation-for="CarNo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Phone"]:</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ContractName"]:</label>
+                    <input asp-for="ContractName" class="form-control" />
+                    <span asp-validation-for="ContractName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ComissionerNo"]:</label>
+                    <input asp-for="ComissionerNo" class="form-control" />
+                    <span asp-validation-for="ComissionerNo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row px-2">
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ItemName"]:</label>
+                    <input asp-for="ItemName" class="form-control" />
+                    <span asp-validation-for="ItemName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["FillPlace"]:</label>
+                    <input asp-for="FillPlace" class="form-control" />
+                    <span asp-validation-for="FillPlace" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Eigency"]:</label>
+                    <input asp-for="Eigency" class="form-control" />
+                    <span asp-validation-for="Eigency" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["RentPerTon"]:</label>
+                    <input asp-for="RentPerTon" class="form-control" />
+                    <span asp-validation-for="RentPerTon" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["TotalExpense"]:</label>
+                    <input asp-for="TotalExpense" class="form-control" />
+                    <span asp-validation-for="TotalExpense" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["EmptyPlace"]:</label>
+                    <input asp-for="EmptyPlace" class="form-control" />
+                    <span asp-validation-for="EmptyPlace" class="text-danger"></span>
+                </div>
+
+
+
+            </div>
+
+            <div class="row px-2">
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["FromMine"]:</label>
+                    <input asp-for="FromMine" class="form-control" />
+                    <span asp-validation-for="FromMine" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Item"]:</label>
+                    <select asp-for="ItemIdd" asp-items="@ViewBag.items" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                        <option value="">@localizer["SelectItem"]</option>
+                    </select>
+                    <span asp-validation-for="ItemIdd" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Category"]:</label>
+                    <select asp-for="CategoryIdd" asp-items="@ViewBag.category" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                        <option value="">@localizer["SelectCategory"]</option>
+                    </select>
+                    <span asp-validation-for="CategoryIdd" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Qty"]:</label>
+                    <input asp-for="Qty" class="form-control" />
+                    <span asp-validation-for="Qty" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["Seek"]:</label>
+                    <input asp-for="Seek" class="form-control" />
+                    <span asp-validation-for="Seek" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label class="">@shared.Get("Date"):</label>
+                    <input asp-for="Seek" class="form-control" />
+                    <span asp-validation-for="Seek" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="submit" id="btnUpdate" class="btn btn-primary btn-icon-sm">@localizer["Add"]</button>
+                </div>
+
+                <div class="form-group col-md-2 d-none" id="btnsprint" style="display:flex;align-items:flex-end">
+                    <button type="reset" id="btnResetItem" class="btn btn-warning btn-icon-sm">@shared.Get("Reset")</button>
+                    &nbsp;&nbsp;
+                    <button type="button" id="btnPrints" onclick="fnSubmitItems1()" class="hidden-print btn btn-primary">@shared.Get("Save") <i class="ft-save"></i></button>
+
+                    &nbsp;&nbsp;
+                    <button type="button" id="btnr" class="btn btn-success "><i class="fa fa-print"></i> @shared.Get("Print")</button>
+
+                </div>
+
+            </div>
+        </form>
+        <div id="divPrint" class="col-md-12 ">
+            <div id="div1" class="row justify-content-center d-none">
+                <h2 class="titleStyle">  عبدالوهاب اریوبوال شرکت Abdul Wahab Aryoubwal Company </h2>
+            </div>
+
+            <div id="div2" class="divCenter d-none">
+                <div class="col-md-12" style=" text-align: center; color: whitesmoke;">
+                    <h2 style="float: right; color: whitesmoke;"> د افغانستان د مسؤل نمبر:0784484510-0788575737</h2>
+                    <h2 style="float: left; color: whitesmoke;"> د پاکستان د مسؤل نمبر:03025999058-03009005029</h2>
+                </div>
+
+                <div class="col-md-12" style="display: flex; flex-direction: column;">
+                    <h2 style="float: right; color: whitesmoke;"> نیټه:<strong class=".date"></strong></h2>
+                    <h2 style="float: right; color: whitesmoke;"> مسلسل نمبر:<strong id="serialnumber">3</strong></h2>
+                </div>
+                <div class="col-md-12" style=" margin-top: -75px; display: flex; justify-content: flex-end; margin-bottom:7px">
+                    <img src="~/images/StaticImages/logo.png" style=" width: 120px; height: 120px; float: left;" />
+
+                </div>
+            </div>
+
+            <div class="col-md-12 divimage" style="max-width:100%;margin:0;">
+                <section id="tblinfo" class="d-none">
+                    <table class="table table-bordered black" style="background-color:transparent !important;word-break:break-word !important; ">
+                        <tr>
+                            <td> ډریور نوم</td>
+                            <td id="dname">حزب الله</td>
+                            <td> ډریور د پلار نوم</td>
+                            <td id="dfname">مجید خان</td>
+                            <td> موټر نمبر پلیت</td>
+                            <td id="dcarno">233eee3  </td>
+                        </tr>
+                        <tr>
+                            <td> ډریور موبایل نمبر</td>
+                            <td id="dphone">0778332234</td>
+                            <td> قرار داد نوم</td>
+                            <td id="contract">نوی قرداد</td>
+                            <td> ګمرک کمیشن کار نمبر</td>
+                            <td id="comission">078787777</td>
+                        </tr>
+                        <tr>
+                            <td> مال نوم</td>
+                            <td id="ditemname"> شوکانی</td>
+                            <td> باریدو ځای</td>
+                            <td id="send">خوږیاڼې</td>
+                            <td>طورخم ایجنسی</td>
+                            <td id="torkham">4000</td>
+
+                        </tr>
+                        <tr>
+                            <td>فی ټن کرایه</td>
+                            <td id="rentper">100</td>
+                            <td>ټوټل خرچه</td>
+                            <td id="totalepx">2000</td>
+                            <td> خالی کیدو ځای</td>
+                            <td id="recieve">جلال آباد</td>
+                        </tr>
+                    </table>
+                </section>
+                <section id="tblitems" class="d-none">
+                    <table class="table  table-active table-bordered" style="max-width: 100%; text-align: center; ">
+                        <thead class="col-md-12 " style="background-color:deepskyblue;">
+                            <tr role="row">
+                                <th>#</th>
+                                <th>معدن</th>
+                                <th>جنس</th>
+                                <th>نوع </th>
+                                <th>وزن </th>
+                                <th>بوجونه </th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="currentselling1" style="font-size:small"></tbody>
+
+                    </table>
+                </section>
+                <div class="col-md-12 d-none" id="footerinfo">
+                    <h3 style="float: right; ">هدایات: که چیرته د پورته ذکر شوی مال څخه پرته هر ډول قانونی او غیر قانونی کړنه په یاد موټر کې ترسره شوه مسؤلیت به یی د موټر د ډریور او د موټر د مالک په غاړه وې !. </h3>
+                    <h3 style="float: left; margin:30px 0;"> د شرکت د منشې لاسلیک</h3>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="tblDealerDiv">
+            <table class="table table-responsive table-bordered dataTable " id="tblBelty">
+                <thead>
+                    <tr role="row">
+                        <th class="col-md-2">#</th>
+                        <th class="col-md-2">@localizer["DriverName"]</th>
+                        <th class="col-md-2">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Phone"]</th>
+                        <th class="col-md-1">@localizer["CarNo"]</th>
+                        <th class="col-md-1">@localizer["ContractName"]</th>
+                        <th class="col-md-2">@localizer["ComissionerNo"]</th>
+                        <th class="col-md-2">@localizer["ItemName"]</th>
+                        <th class="col-md-2">@localizer["FillPlace"]</th>
+                        <th class="col-md-2">@localizer["Eigency"]</th>
+                        <th class="col-md-2">@localizer["RentPerTon"]</th>
+                        <th class="col-md-2">@localizer["TotalExpense"]</th>
+                        <th class="col-md-2">@localizer["EmptyPlace"]</th>
+                        <th class="col-md-2">@localizer["Date"]</th>
+                        <th class="col-md-2">@localizer["Items"]</th>
+                        <th class="col-md-2">@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal items -->
+<div class="modal fade text-left" id="BeltyItemsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel12"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel12"><i class="ft-edit-3"></i>&nbsp;&nbsp; @localizer["BeltyItems"]</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="">
+                    <table class="table  table-bordered dataex-fixh-basic dataTable" id="tblItemInfo">
+                        <thead>
+                            <tr role="row">
+                                <th>#</th>
+                                <th>@localizer["FromMine"]</th>
+                                <th>@localizer["Item"]</th>
+                                <th>@localizer["Category"]</th>
+                                <th>@localizer["Qty"]</th>
+                                <th>@localizer["Seek"]</th>
+                                <th>@localizer["Date"]</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblNotesBody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<form data-ajax="true" asp-action="DeleteMineBelty" data-ajax-method="post" asp-controller="Process" data-ajax-success="deletedDealer(data)">
+    <input hidden id="deleteIdDealer" name="recordId" />
+    <button type="submit" class="d-none" id="btnDeleteDealer"></button>
+</form>
+
+<script>
+    $(function () {
+        LoadBelties();
+    })
+
+    let row1 = 1;
+
+    function AddItemsToBill1() {
+        $("#tblitems").removeClass("d-none");
+        $("#btnsprint").removeClass("d-none");
+
+        var saleditem = "";
+
+        saleditem += "  <tr  id='" + row1 + "'>";
+        saleditem += "     <td class='item'><label>" + row1 + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#FromMine").val() + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#ItemIdd :selected").text() + "</label></td>";
+        saleditem += "     <td><label>" + $("#CategoryIdd :selected").text() + "<label</td>";
+        saleditem += "     <td><label>" + $("#Qty").val() + "<label</td>";
+        saleditem += "     <td style='cursor:pointer' class='btnRad' onclick='removeItemFromList1(this)'><label>" + $("#Seek").val() + "<label</td>";
+        saleditem += "     <td style='display:none'>" + $("#ItemIdd").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#CategoryIdd").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#Qty").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#Seek").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#FromMine").val() + "</td>";
+        saleditem += " </tr>";
+
+        row1++;
+        $("#currentselling1").append(saleditem);
+
+        $("#ItemIdd").val('')
+        $("#CategoryIdd").val('')
+        $("#Qty").val('')
+        $("#Seek").val('')
+    }
+
+    function fnSubmitItems1() {
+
+        let data = []
+        let items = {}
+        $("#currentselling1>tr").each(function (i, col) {
+            items = {
+                itemid: parseInt($(this).find('td').eq(6).text()),
+                categoryid: parseInt($(this).find('td').eq(7).text()),
+                qty: parseFloat($(this).find('td').eq(8).text()),
+                seek: parseFloat($(this).find('td').eq(9).text()),
+                frommine: $(this).find('td').eq(10).text()
+            };
+            data.push(items)
+        })
+
+
+        if ($("#DriverName").val() != null && $("#FName").val() != null &&
+            $("#CarNo").val() != "" && $("#Phone").val() != null &&
+            $("#ContractName").val() != "" && $("#ItemName").val() != null &&
+            $("#FillPlace").val() != "" && $("#Eigency").val() != null &&
+            $("#EmptyPlace").val() != null &&
+            $("#ComissionerNo").val() != "" && $("#RentPerTon").val() != "" &&
+            $("#TotalExpense").val() != null && $("#TotalExpense").val() != null) {
+
+            let BillInfo = {
+                driver: $("#DriverName").val(),
+                fname :$("#FName").val(),
+                carno :$("#CarNo").val(),
+                phone :$("#Phone").val(),
+                contract : $("#ContractName").val(),
+                comission :  $("#ComissionerNo").val(),
+                itemname : $("#ItemName").val(),
+                fill : $("#FillPlace").val(),
+                eigency : $("#Eigency").val(),
+                rent : $("#RentPerTon").val(),
+                expense : $("#TotalExpense").val(),
+                empty : $("#EmptyPlace").val(),
+            };
+
+            $.ajax({
+                url: "/Process/AddPKBelty/?data=" + JSON.stringify(data) + "&billinfo=" + JSON.stringify(BillInfo) + "&date=" + $("#Date").val() + "",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    fnSuccessSale1(result);
+                },
+                error: function (err) {
+                    toastr.error('@localizer["Error"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                }
+            })
+        } else {
+           toastr.warning('@localizer["Empty"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        }
+    }
+
+    function fnSuccessSale1(result) {
+        if (result == "success") {
+            $("#currentselling1").empty();
+            $("#div1").addClass("d-none");
+            $("#div2").addClass("d-none");
+            $("#tblinfo").addClass("d-none");
+            $("#tblitems").addClass("d-none");
+            $("#footerinfo").addClass("d-none");
+            $("#btnsprint").addClass("d-none");
+            $("#btnResetItem").trigger("click");
+            toastr.success("@localizer["Success"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadBelties();
+        }
+    }
+
+    function removeItemFromList1(row) {
+        $(row).closest('tr').remove();
+        if ($("#currentselling1").children().length < 1) {
+            $("#div1").addClass("d-none");
+            $("#div2").addClass("d-none");
+            $("#tblinfo").addClass("d-none");
+            $("#tblitems").addClass("d-none");
+            $("#footerinfo").addClass("d-none");
+            $("#btnsprint").addClass("d-none");
+
+            $("#PurchaseBill").removeAttr("disabled");
+            $("#DealerId").removeAttr("disabled");
+            $("#CurrencyId").removeAttr("disabled");
+            $("#StockId").removeAttr("disabled");
+
+        }
+    }
+
+    function LoadBelties() {
+        $.ajax({
+            url: '/Process/LoadBelties/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var deal = "";
+
+                $.each(result, function (i, col) {
+
+                        deal += " <tr >";
+                        deal += "      <td> " + (i + 1) + " </td>";
+                        deal += "      <td> " + col.name + " </td>";
+                        deal += "      <td> " + col.fname + " </td>";
+                        deal += "      <td> " + col.phone + " </td>";
+                        deal += "      <td> " + col.carno + " </td>";
+                        deal += "      <td> " + col.contract + " </td>";
+                        deal += "      <td> " + col.comission + " </td>";
+                        deal += "      <td> " + col.itemname + " </td>";
+                        deal += "      <td> " + col.fill + " </td>";
+                        deal += "      <td> " + col.eigency + " </td>";
+                        deal += "      <td> " + parseFloat(col.rent).toFixed(3) + " </td>";
+                        deal += "      <td> " + parseFloat(col.expense).toFixed(3) + " </td>";
+                        deal += "      <td> " + col.empty + " </td>";
+                        deal += "     <td>  " + col.date + " </td>";
+                        deal += "     <td><button type='button' class='btn btn-primary ' onclick='LoadBeltyItems(" + col.id + ")' ><i class='fa fa-info'></i></button></td>";
+                        deal += "     <td><button type='button' class='btn btn-danger ' onclick='DeleteDealerRecord(" + col.id + ")' ><i class='fa fa-trash'></i></button></td>";
+                        deal += "      </tr>";
+                });
+
+                var table = $("#tblBelty").dataTable();
+                table.fnDestroy();
+
+                $("#tblBelty>tbody").html("").html(deal);
+                $("#tblBelty").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+                });
+
+
+                $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function LoadBeltyItems(id) {
+
+         $.ajax({
+                url: "/Process/BeltyItems/?id=" + id + "",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var deal = "";
+
+                    $.each(result, function (i, col) {
+
+                        deal += " <tr >";
+                        deal += "      <td> " + (i + 1) + " </td>";
+                        deal += "      <td> " + col.mine + " </td>";
+                        deal += "      <td> " + col.item + " </td>";
+                        deal += "      <td> " + col.category + " </td>";
+                        deal += "      <td> " + col.qty + " </td>";
+                        deal += "      <td> " + col.seek + " </td>";
+                        deal += "      <td> " + col.date + " </td>";
+                        deal += "      </tr>";
+                    });
+
+                    $("#tblItemInfo>tbody").html("").html(deal);
+
+                    $("#BeltyItemsModal").modal("show");
+                },
+                error: function (err) {
+                    toastr.error('@localizer["Error"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                }
+            })
+    }
+
+    function PrintRecord(id,date,detials,paid,expense,rent,weight,owner,empty,fill,mine,contract,carno,phone,fname,name) {
+          $("#serialnumber").text(id)
+          $(".date").text(date)
+          $("#dname").text(name)
+          $("#dfname").text(fname)
+          $("#dcarno").text(carno)
+          $("#dphone").text(phone)
+          $("#contract").text(contract)
+          $("#mine").text(mine)
+          $("#send").text(fill)
+          $("#recieve").text(empty)
+          $("#owner").text(owner)
+          $("#dweight").text(weight)
+          $("#rentper").text(rent)
+          $("#totalepx").text(expense)
+          $("#totalrent").text((parseFloat(rent) * parseFloat(weight)))
+          $("#totalpaid").text(paid)
+          $("#remain").text((parseFloat(rent) * parseFloat(weight)) - parseFloat(paid))
+
+          $("#divPrint").removeClass("d-none");
+
+           $("#divPrint").printThis({
+               debug: false,
+               importStyle: true,
+               printContainer: true,
+               loadCSS: "",
+               pageTitle: "",
+               removeInline: false,
+               removeInlineSelector: "*",
+               base: false,
+               formValues: true,
+               canvas: false,
+               doctypeString: '...',
+               removeScripts: false,
+               copyTagClasses: true,
+               beforePrintEvent: null,
+               beforePrint: null,
+               afterPrint: null,
+           });
+
+          function hideBelty() {
+              $("#divPrint").addClass("d-none");
+              $("#tblitems").addClass("d-none");
+          }
+
+          setTimeout(function () {
+              hideBelty();
+          }, 2000)
+
+    }
+
+    function EditRecord(id,detials,paid,expense,rent,weight,owner,empty,fill,mine,contract,carno,phone,fname,name) {
+        $("#BeltyId").val(id);
+        $("#Detials").val(detials);
+        $("#Paid").val(paid);
+        $("#TotalExpense").val(expense);
+        $("#RentPerTon").val(rent);
+        $("#Weight").val(weight);
+        $("#ItemOwner").val(owner);
+        $("#EmptyPlace").val(empty);
+        $("#FillPlace").val(fill);
+        $("#MineName").val(mine);
+        $("#ContractName").val(contract);
+        $("#CarNo").val(carno);
+        $("#Phone").val(phone);
+        $("#FName").val(fname);
+        $("#DriverName").val(name);
+
+        $("#btnUpdate").text("@shared.Get("Update")");
+    }
+
+    function DeleteDealerRecord(id) {
+        $("#deleteIdDealer").val(id);
+
+        swal({
+           title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDeleteDealer").trigger("click");
+            }
+        });
+
+    }
+
+    function deletedDealer(data) {
+        toastr.success("@localizer["Deleted"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        LoadBelties();
+    }
+
+
+    $("#btnr").click(function () {
+        if ($("#DriverName").val() != null && $("#FName").val() != null &&
+            $("#CarNo").val() != "" && $("#Phone").val() != null &&
+            $("#ContractName").val() != "" && $("#ItemName").val() != null &&
+            $("#FillPlace").val() != "" && $("#Eigency").val() != null &&
+            $("#EmptyPlace").val() != null &&
+            $("#ComissionerNo").val() != "" && $("#RentPerTon").val() != "" &&
+            $("#TotalExpense").val() != null && $("#TotalExpense").val() != null)
+        {
+            let number = @ViewBag.beltyid;
+
+            $("#div1").removeClass("d-none");
+            $("#div2").removeClass("d-none");
+            $("#tblinfo").removeClass("d-none");
+            $("#tblitems").removeClass("d-none");
+            $("#footerinfo").removeClass("d-none");
+
+            $("#serialnumber").text(number)
+            $(".date").text($("#Date").val())
+            $("#dname").text($("#DriverName").val())
+            $("#dfname").text($("#FName").val())
+            $("#dcarno").text($("#CarNo").val())
+            $("#dphone").text($("#Phone").val())
+            $("#contract").text($("#ContractName").val())
+            $("#comission").text($("#ComissionerNo").val())
+            $("#send").text($("#FillPlace").val())
+            $("#recieve").text($("#EmptyPlace").val())
+            $("#ditemname").text($("#ItemName").val())
+            $("#rentper").text($("#RentPerTon").val())
+            $("#totalepx").text($("#TotalExpense").val())
+
+
+            $("#divPrint").printThis({
+                debug: false,
+                importStyle: true,
+                printContainer: true,
+                loadCSS: "",
+                pageTitle: "",
+                removeInline: false,
+                removeInlineSelector: "*",
+                base: false,
+                formValues: true,
+                canvas: false,
+                doctypeString: '...',
+                removeScripts: false,
+                copyTagClasses: true,
+                beforePrintEvent: null,
+                beforePrint: null,
+                afterPrint: null,
+            });
+
+        setTimeout(function () {
+            $("#div1").addClass("d-none");
+            $("#div2").addClass("d-none");
+            $("#tblinfo").addClass("d-none");
+            //$("#tblitems").addClass("d-none");
+            $("#footerinfo").addClass("d-none");
+            //$("#btnsprint").addClass("d-none");
+        }, 2000)
+    }
+    })
+
+</script>

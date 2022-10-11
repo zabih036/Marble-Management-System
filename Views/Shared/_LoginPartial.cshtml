@@ -1,0 +1,49 @@
+﻿
+@inject IAuthorizationService authorize
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+@inject UserManager<ApplicationUser> UserManager
+
+@inject SharedResources shared
+
+
+@if (SignInManager.IsSignedIn(User))
+{
+
+
+    <li class="dropdown dropdown-user nav-item">
+
+
+        <a asp-controller="Manage" asp-action="Index" class="dropdown-toggle nav-link dropdown-user-link" data-toggle="dropdown">
+            <style>
+                .avatar img {
+                    max-width: none;
+                    width: 45px;
+                    height: 45px;
+                    margin-top: -10px;
+                    margin-bottom: -10px;
+                    margin-right: -10px;
+                }
+            </style>
+            <span class="avatar ">
+
+                <img src="@UserManager.GetUserAsync(User).Result.ImagePath" style=" " alt="avatar"><i></i>
+            </span>
+
+
+            <span class="user-name text-capitalize">@UserManager.GetUserAsync(User).Result.EmployeeName</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a asp-action="ChangePassword" asp-controller="Manage" class="dropdown-item" style="margin-left:5px;"> <i class="fa fa-key"></i> @shared.Get("ChangePassword")</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" asp-action="Logout" asp-controller="Account"><i class="ft-power"></i> @shared.Get("Logout")</a>
+        </div>
+
+    </li>
+
+}
+else
+{
+
+}

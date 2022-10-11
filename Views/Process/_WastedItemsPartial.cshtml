@@ -1,0 +1,107 @@
+﻿
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblWasted">
+    <thead>
+        <tr role="row">
+            <th>#</th>
+            <th>@localizer["Item"]</th>
+            <th>@localizer["Weight"]</th>
+            <th>@localizer["Price"]</th>
+            <th>@localizer["Total"]</th>
+            <th>@localizer["Currency"]</th>
+            <th>@localizer["Date"]</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+        </tr>
+    </tfoot>
+    <tbody></tbody>
+</table>
+
+
+<script>
+    $(function () {
+        allWasted()
+    })
+
+    function allWasted() {
+        $.ajax({
+            url: '/Process/FetchWastedItems/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + (i + 1) + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + parseFloat(col.quantity).toFixed(3) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price).toFixed(2) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price * col.quantity).toFixed(2) + "</td> ";
+                    tr += "      <td>" + col.currency + "</td> ";
+                    tr += "      <td>" + col.date + "</td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblWasted").dataTable();
+                table.fnDestroy();
+
+                $("#tblWasted>tbody").html("").html(tr);
+                $("#tblWasted").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                    "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                    "pageLength": 5,
+                    "language": {
+                    "emptyTable": " @shared.Get("NoDataInTable")",
+                    "info": "@shared.Get("FromToShow")",
+                    "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                    "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                    "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                    "searchPlaceholder": "@shared.Get("Search")",
+                    "zeroRecords": "@shared.Get("NoRecordFound")",
+                    "paginate": {
+                    "first": "@shared.Get("FirstPage")",
+                    "previous": "@shared.Get("Previous")",
+                    "next": "@shared.Get("Next")",
+                    "last": "@shared.Get("Last")"
+                    },
+                    },
+
+
+                });
+
+
+                $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+</script>

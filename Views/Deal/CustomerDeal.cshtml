@@ -1,0 +1,669 @@
+﻿
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#customerDealActive").addClass("active")</script>
+<link href="~/metronic/components-rounded-rtl.min.css" rel="stylesheet" />
+
+
+<div class="card mt-5">
+    <div class="text-center">
+        <h2 class="warning"></h2>
+        <h3 class="text-center  alert bg-yellow bg-darken-2 box-shadow-1 text-white" style="background-color:#ffffff;">@localizer["DealerForm"]</h3>
+    </div>
+
+    <div id="divTable">
+        <table class="table table-responsive-md table-striped table-condensed  table-bordered dataTables_scrollHead" id="tbl">
+            <thead class="scrollable-container ps--scrolling-x ">
+                <tr role="row">
+                    <th class="col-md-3">#</th>
+                    <th class="col-md-3">@localizer["Customer"]</th>
+                    <th class="col-md-2">@localizer["FName"]</th>
+                    <th class="col-md-1">@localizer["Address"]</th>
+                    <th class="col-md-1">@localizer["Phone"]</th>
+                    <th class="col-md-1">@localizer["AccountDetails"]</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="card-content" style="display:none" id="divInfo">
+        <div class="px-3"><button type="button" id="showList" class="btn btn-outline-info px-2"> <span class="fa fa-chevron-circle-down font-medium-4"> </span></button></div>
+        <div class="card-body">
+            <ul class="nav nav-tabs nav-justified nav-top-border no-hover-bg nav-justified">
+                <li class="nav-item">
+                    <a class="nav-link   " id="active-tab1" data-toggle="tab" href="#active1" aria-controls="active1" aria-expanded="true"><label style="font-size:large">@localizer["AFNDeal"]</label></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " id="link-tab1" data-toggle="tab" href="#link1" aria-controls="link1" aria-expanded="false"><label style="font-size:large">@localizer["PKRDeal"]</label></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " id="linkOpt-tab1" data-toggle="tab" href="#linkOpt1" aria-controls="linkOpt1"><label style="font-size:large">@localizer["USDDeal"]</label></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active " id="linkOpt-tab2" data-toggle="tab" href="#linkOpt2" aria-controls="linkOpt1"><label style="font-size:large">@localizer["TotalDeal"]</label></a>
+                </li>
+            </ul>
+            <div class="tab-content pt-1">
+                <div role="tabpanel" class="tab-pane" id="active1" aria-labelledby="active-tab1" aria-expanded="true">
+
+                    <table class="table table-striped table-responsive table-responsive-lg table-condensed table-bordered " id="afghaniTable">
+                        <thead class="scrollable-container ps--scrolling-x ">
+                            <tr role="row">
+                                <th class="col-md-2">#</th>
+                                <th class="col-md-2">@localizer["Customer"]</th>
+                                <th class="col-md-2">@localizer["FName"]</th>
+                                <th class="col-md-1">@localizer["Phone"]</th>
+                                <th class="col-md-1">@localizer["Debit"]</th>
+                                <th class="col-md-1">@localizer["Credit"]</th>
+                                <th class="col-md-2">@shared.Get("Details")</th>
+                                <th class="col-md-2">@localizer["User"]</th>
+                                <th class="col-md-2">@localizer["Date"]</th>
+                                <th class="col-md-2">@localizer["By"]</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                            </tr>
+                        </tfoot>
+                        <tbody></tbody>
+                    </table>
+                    <div class="portlet-body">
+                        <div class="mt-element-step">
+
+                            <div class="row step-default">
+                                <div class=" col-md-4 bg-grey mt-step-col active">
+                                    <div class=" mt-step-number bg-white font-grey"><strong>@localizer["Debit"] </strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="afghaniDebit">0</strong></div>
+                                </div>
+                                <div class="col-md-4 bg-grey mt-step-col">
+                                    <div class=" mt-step-number bg-white kt-font-dark"><strong>@localizer["Credit"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="afghaniCredit">0</strong></div>
+                                </div>
+
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey"><strong>@localizer["Balance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="afghaniRemain">0</strong></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="link1" role="tabpanel" aria-labelledby="link-tab1" aria-expanded="true">
+                    <table class="table  table-striped table-responsive table-condensed table-bordered dataTables_scrollHead" id="rupeTable">
+                        <thead class="scrollable-container ps--scrolling-x">
+                            <tr role="row">
+                                <th class="col-md-2">#</th>
+                                <th class="col-md-2">@localizer["Customer"]</th>
+                                <th class="col-md-2">@localizer["FName"]</th>
+                                <th class="col-md-1">@localizer["Phone"]</th>
+                                <th class="col-md-1">@localizer["Debit"]</th>
+                                <th class="col-md-1">@localizer["Credit"]</th>
+                                <th class="col-md-2">@shared.Get("Details")</th>
+                                <th class="col-md-2">@localizer["User"]</th>
+                                <th class="col-md-2">@localizer["Date"]</th>
+                                <th class="col-md-2">@localizer["By"]</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="portlet-body">
+                        <div class="mt-element-step">
+                            <div class="row step-default">
+
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey "><strong>@localizer["Debit"] </strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="rupeDebit">0</strong></div>
+                                </div>
+                                <div class=" col-md-4 bg-grey mt-step-col ">
+                                    <div class="mt-step-number  bg-white kt-font-dark"><strong>@localizer["Credit"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="rupeCredit">0</strong></div>
+                                </div>
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey"><strong>@localizer["Balance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="rupeRemain">0</strong></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="linkOpt1" role="tabpanel" aria-labelledby="linkOpt-tab1" aria-expanded="false">
+                    <table class="table  table-striped table-responsive table-condensed table-bordered dataTables_scrollHead" id="dollerTable">
+                        <thead class="scrollable-container ps--scrolling-x">
+                            <tr role="row">
+                                <th class="col-md-2">#</th>
+                                <th class="col-md-2">@localizer["Customer"]</th>
+                                <th class="col-md-2">@localizer["FName"]</th>
+                                <th class="col-md-1">@localizer["Phone"]</th>
+                                <th class="col-md-1">@localizer["Debit"]</th>
+                                <th class="col-md-1">@localizer["Credit"]</th>
+                                <th class="col-md-2">@shared.Get("Details")</th>
+                                <th class="col-md-2">@localizer["User"]</th>
+                                <th class="col-md-2">@localizer["Date"]</th>
+                                <th class="col-md-2">@localizer["By"]</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                                <th rowspan="1" colspan="1"></th>
+                            </tr>
+                        </tfoot>
+                        <tbody></tbody>
+                    </table>
+
+                    <div class="portlet-body">
+                        <div class="mt-element-step">
+                            <div class="row step-default">
+                                <div class=" col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey "><strong>@localizer["Debit"] </strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="dollerDebit">0</strong></div>
+                                </div>
+                                <div class=" col-md-4 bg-grey mt-step-col">
+                                    <div class="mt-step-number  bg-white kt-font-dark"><strong>@localizer["Credit"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="dollerCredit">0</strong></div>
+                                </div>
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey"><strong>@localizer["Balance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="dollerRemain">0</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane in active" id="linkOpt2" role="tabpanel" aria-labelledby="linkOpt-tab1" aria-expanded="false">
+                    <div class="portlet-body">
+                        <div class="mt-element-step">
+                            <div class="row step-default">
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey"><strong>@localizer["AFNBalance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="totalAfghani"></strong></div>
+                                </div>
+                                <div class="col-md-4 bg-grey mt-step-col ">
+                                    <div class="mt-step-number bg-white kt-font-dark "><strong> @localizer["PKRBalance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="totalRupe"></strong></div>
+                                </div>
+                                <div class="col-md-4 bg-grey mt-step-col active">
+                                    <div class="mt-step-number bg-white font-grey"><strong>@localizer["USDBalance"]</strong></div>
+                                    <div class="mt-step-title uppercase font-grey-cascade" dir="ltr"><strong id="totalDoller"></strong></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Image modal -->
+<div class="modal fade text-left" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel35"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg p-4" role="document">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; padding: 10px; cursor:pointer">
+            <span aria-hidden="true" style="color: #f9f9f9; font-size: larger;">&times;</span>
+        </button>
+        <img src="" class="round" style="height:100%;width:100%;" id="imageZoom" />
+    </div>
+</div>
+
+<form data-ajax="true" asp-action="DeleteRecord" data-ajax-method="post" asp-controller="Deal" data-ajax-success="deleted(data)">
+    <input hidden id="deleteId" name="recordId" />
+    <input hidden id="imagedelete" name="imagePath" />
+    <button type="submit" class="d-none" id="btnDelete"></button>
+</form>
+
+
+<div class="d-none">
+    <form data-ajax="true" asp-controller="Deal" asp-action="CustomerDealInfo" data-ajax-success="SuccessDealInfo(data)" data-ajax-method="post" id="">
+        <input type="hidden" name="customerId" id="idForReload" value="" />
+        <button type="submit" class="btn btn-primary" id="btnReloadDeals"></button>
+    </form>
+</div>
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+        $(document).ready(function () {
+            LoadCustomers();
+        })
+
+        function LoadCustomers() {
+            $.ajax({
+                url: '/Deal/FetchCustomers/',
+                type: 'GET',
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (customers) {
+                    var tr = "";
+                    $.each(customers, function (i, col) {
+                        tr += ' <tr>';
+                        tr += '      <td class="col-md-3"> ' + (i + 1) + ' </td>';
+                        tr += '      <td class="col-md-3"> ' + col.name + ' </td>';
+                        tr += '      <td class="col-md-2"> ' + col.fname + ' </td>';
+                        tr += '     <td  class="col-md-2"> ' + col.address + '</td>';
+                        tr += '     <td  class="col-md-2"> ' + col.phone + '</td>';
+                        tr += '     <td  class="col-md-2">  <form data-ajax="true" data-ajax-url="/Deal/CustomerDealInfo" data-ajax-success="SuccessDealInfo(data)" data-ajax-method="post" ><input type="hidden" name="customerId" value="' + col.customerid + '" /><button type="submit" class="btn btn-primary"><i" class="ft-info" ></i></button> </form> </td>';
+                        tr += ' </tr>';
+                    });
+
+                    $("#tbl>tbody").html("").html(tr);
+                    $("#tbl").DataTable({
+                        stateSave: true,
+                        "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+
+                    });
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        var totalAfghaniDebit = 0.0;
+        var totalRupeDebit = 0.0;
+        var totalDollerDebit = 0.0;
+
+        function SuccessDealInfo(result) {
+
+            $("#divTable").hide(600)
+            $("#divInfo").show(200)
+
+            var afghaniDeals = "";
+            var rupeDeals = "";
+            var dollerDeals = "";
+
+            var allAfghaniCredit = 0;
+            var allAfghaniDebit = 0;
+
+            var allRupeCredit = 0;
+            var allRupeDebit = 0;
+
+            var allDollerCredit = 0;
+            var allDollerDebit = 0;
+
+            var dealerName = "";
+
+            $.each(result, function (i, col) {
+                dealerName = col.name;
+                if (col.currencyid == 1) {
+                    afghaniDeals += " <tr >";
+                    afghaniDeals += "      <td> " + (i + 1) + " </td>";
+                    afghaniDeals += "      <td> " + col.name + " </td>";
+                    afghaniDeals += "      <td> " + col.fname + " </td>";
+                    afghaniDeals += "      <td> " + col.phone + " </td>";
+                    afghaniDeals += "      <td> " + parseFloat(col.debit).toFixed(2) + " </td>";
+                    afghaniDeals += "      <td> " + parseFloat(col.credit).toFixed(2) + " </td>";
+                    afghaniDeals += "      <td> " + col.details + "  </td>";
+                    afghaniDeals += "      <td> " + col.employee + "  </td>";
+                    afghaniDeals += "     <td>  " + col.date + " </td>";
+                    afghaniDeals += "      <td> <img class='round' onclick='fnZoomImage( \"" + col.image + "\")' src=" + col.image + " style='height:60px; width:100px; cursor: pointer;' /></td>";
+                    afghaniDeals += "      </tr>";
+                    allAfghaniCredit += col.credit;
+                    allAfghaniDebit += col.debit;
+                }
+                if (col.currencyid == 2) {
+                    rupeDeals += " <tr>";
+                    rupeDeals += "      <td> " + (i + 1) + " </td>";
+                    rupeDeals += "      <td> " + col.name + " </td>";
+                    rupeDeals += "      <td> " + col.fname + " </td>";
+                    rupeDeals += "      <td> " + col.phone + " </td>";
+                    rupeDeals += "      <td> " + parseFloat(col.debit).toFixed(2) + " </td>";
+                    rupeDeals += "      <td> " + parseFloat(col.credit).toFixed(2) + " </td>";
+                    rupeDeals += "      <td> " + col.details + "  </td>";
+                    rupeDeals += "      <td> " + col.employee + "  </td>";
+                    rupeDeals += "     <td>  " + col.date + " </td>";
+                    rupeDeals += "      <td> <img class='round' onclick='fnZoomImage( \"" + col.image + "\")' src=" + col.image + " style='height:60px; width:100px; cursor: pointer;' /></td>";
+                    rupeDeals += "      </tr>";
+                    allRupeCredit += col.credit;
+                    allRupeDebit += col.debit;
+                }
+                if (col.currencyid == 3) {
+                    dollerDeals += " <tr>";
+                    dollerDeals += "      <td> " + (i + 1) + " </td>";
+                    dollerDeals += "      <td> " + col.name + " </td>";
+                    dollerDeals += "      <td> " + col.fname + " </td>";
+                    dollerDeals += "      <td> " + col.phone + " </td>";
+                    dollerDeals += "      <td> " + parseFloat(col.debit).toFixed(2) + " </td>";
+                    dollerDeals += "      <td> " + parseFloat(col.credit).toFixed(2) + " </td>";
+                    dollerDeals += "      <td> " + col.details + "  </td>";
+                    dollerDeals += "      <td> " + col.employee + "  </td>";
+                    dollerDeals += "     <td>  " + col.date + " </td>";
+                    dollerDeals += "      <td> <img class='round' onclick='fnZoomImage( \"" + col.image + "\")' src=" + col.image + " style='height:60px; width:100px; cursor: pointer;' /></td>";
+                    dollerDeals += "      </tr>";
+                    allDollerCredit += col.credit;
+                    allDollerDebit += col.debit;
+                }
+            })
+
+            var table = $("#afghaniTable").dataTable();
+            table.fnDestroy();
+
+            var table = $("#dollerTable").dataTable();
+            table.fnDestroy();
+
+            var table = $("#rupeTable").dataTable();
+            table.fnDestroy();
+
+            $("#afghaniTable>tbody").html("").html(afghaniDeals);
+            var table = $("#afghaniTable").dataTable({
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(),
+                        data;
+
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+                    debit = api
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    credit = api
+                        .column(5)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    $(api.column(4).footer()).html(
+                        '؋ ( ' + debit.toFixed(2) + ')'
+                    );
+                    $(api.column(5).footer()).html(
+                        '؋ (  ' + credit.toFixed(2) + ')'
+                    );
+                    var remainP = parseFloat(parseFloat(debit.toFixed(2) - credit.toFixed(2)))
+                    var type = "Cr";
+                    if (remainP < 0) {
+                        type = "Dr";
+                    }
+                    $(api.column(6).footer()).html(
+                        type + '( ' + remainP.toFixed(2) + ')'
+                    );
+                },
+                stateSave: true,
+                dom: 'Blfrtip', buttons: [
+                    {
+                        extend: 'print',
+                        footer: true,
+                        title: function () {
+                            return `<div style='font-size:25px;'><strong style='font-size:25px;'>عبدالوهاب اریوبوال شرکت</strong></br>${dealerName} کهاتې تفصیل  </div>`;
+                        },
+                    },
+                    { extend: 'excel', footer: true },
+                    { extend: 'copy', footer: true },
+                ],
+                "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+            });
+           $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+            $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+            $("#rupeTable>tbody").html('').html(rupeDeals);
+            var table = $("#rupeTable").DataTable({
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(),
+                        data;
+
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+                    debit = api
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    credit = api
+                        .column(5)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    $(api.column(4).footer()).html(
+                        'PKR ( ' + debit.toFixed(2) + ')'
+                    );
+                    $(api.column(5).footer()).html(
+                        'PKR (  ' + credit.toFixed(2) + ')'
+                    );
+                    var remainP = parseFloat(parseFloat(debit.toFixed(2) - credit.toFixed(2)))
+                    var type = "Cr";
+                    if (remainP < 0) {
+                        type = "Dr";
+                    }
+                    $(api.column(6).footer()).html(
+                        type + '( ' + remainP.toFixed(2) + ')'
+                    );
+                },
+                stateSave: true,
+                dom: 'Blfrtip', buttons: [
+                    {
+                        extend: 'print',
+                        footer: true,
+                        title: function () {
+                            return `<div style='font-size:25px;'><strong style='font-size:25px;'>عبدالوهاب اریوبوال شرکت</strong></br>${dealerName} کهاتې تفصیل  </div>`;
+                        },
+                    },
+                    { extend: 'excel', footer: true },
+                    { extend: 'copy', footer: true },
+                ],
+                "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+            });
+           $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+            $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+            $("#dollerTable>tbody").html('').html(dollerDeals);
+            $("#dollerTable").DataTable({
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(),
+                        data;
+
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+                    debit = api
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    credit = api
+                        .column(5)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    $(api.column(4).footer()).html(
+                        '$ ( ' + debit.toFixed(3) + ')'
+                    );
+                    $(api.column(5).footer()).html(
+                        '$ (  ' + credit.toFixed(3) + ')'
+                    );
+                    var remainP = parseFloat(parseFloat(debit.toFixed(3) - credit.toFixed(3)))
+                    var type = "Cr";
+                    if (remainP < 0) {
+                        type = "Dr";
+                    }
+                    $(api.column(6).footer()).html(
+                        type + '( ' + remainP.toFixed(2) + ')'
+                    );
+                },
+                stateSave: true,
+                dom: 'Blfrtip', buttons: [
+                    {
+                        extend: 'print',
+                        footer: true,
+                        title: function () {
+                            return `<div style='font-size:25px;'><strong style='font-size:25px;'>عبدالوهاب اریوبوال شرکت</strong></br>${dealerName} کهاتې تفصیل  </div>`;
+                        },
+                    },
+                    { extend: 'excel', footer: true },
+                    { extend: 'copy', footer: true },
+                ],
+                "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+            });
+          $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+            $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+
+            $("#afghaniCredit").text(allAfghaniCredit.toFixed(2));
+            $("#afghaniDebit").text(allAfghaniDebit.toFixed(2));
+            $("#afghaniRemain").text((allAfghaniDebit - allAfghaniCredit).toFixed(2));
+
+            $("#rupeCredit").text(allRupeCredit.toFixed(2));
+            $("#rupeDebit").text(allRupeDebit.toFixed(2));
+            $("#rupeRemain").text((allRupeDebit - allRupeCredit).toFixed(2));
+
+            $("#dollerCredit").text(allDollerCredit.toFixed(2));
+            $("#dollerDebit").text(allDollerDebit.toFixed(2));
+            $("#dollerRemain").text((allDollerDebit - allDollerCredit).toFixed(2));
+
+            $("#totalAfghani").text((allAfghaniDebit - allAfghaniCredit).toFixed(2));
+            $("#totalRupe").text((allRupeDebit - allRupeCredit).toFixed(2));
+            $("#totalDoller").text((allDollerDebit - allDollerCredit).toFixed(2));
+
+            totalAfghaniDebit = (parseFloat(allAfghaniDebit) - parseFloat(allAfghaniCredit));
+            totalRupeDebit = (parseFloat(allRupeDebit) - parseFloat(allRupeCredit));
+            totalDollerDebit = (parseFloat(allDollerDebit) - parseFloat(allDollerCredit));
+        }
+
+        $("#showList").click(function () {
+            $("#divTable").show(200)
+            $("#divInfo").hide(600)
+        })
+
+        function fnZoomImage(path) {
+
+            $("#imageZoom").attr("src", path);
+            $("#imageModal").modal("show")
+        }
+
+</script>
+}

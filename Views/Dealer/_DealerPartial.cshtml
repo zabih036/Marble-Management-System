@@ -1,0 +1,190 @@
+﻿
+@model DealerViewModel
+
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+<div class="modal-content user-view">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["RegisterNewDealer"] </h4>
+    </div>
+    <div class="modal-body">
+        <form asp-controller="Dealer" data-ajax="true" asp-action="DealerRegistration" data-ajax-success="funSuccessDealer(data)" method="post" id="frmDealer">
+            <div class="row col-md-12 align-items-end justify-content-center pt-2">
+                <input hidden asp-for="DealerId" value="0" />
+                <div class="form-group">
+                    <label class="">@localizer["Name"]:</label>
+                    <input asp-for="Name"  class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label class="">@localizer["FName"]:</label>
+                    <input asp-for="FName"  class="form-control" />
+                    <span asp-validation-for="FName" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label class="">@localizer["Address"]:</label>
+                    <input asp-for="Address"  class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                    <label  class="">@localizer["Phone"]:</label>
+                    <input asp-for="Phone"  class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2 user-insert">
+                    <button type="submit" id="btnSubmitDealer" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                    <button type="reset" id="btnResetDealer" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+                </div>
+            </div>
+        </form>
+        <section id="divTable">
+            <table class="table table-responsive-md table-striped table-condensed table-bordered dataTables_scrollHead" id="tblDealer">
+                <thead class="scrollable-container ps--scrolling-x">
+                    <tr role="row">
+                        <th style="max-width:1%;">#</th>
+                        <th class="col-md-1">@localizer["Name"]</th>
+                        <th class="col-md-1">@localizer["FName"]</th>
+                        <th class="col-md-1">@localizer["Address"]</th>
+                        <th class="col-md-1">@localizer["Phone"] </th>
+                        <th style="max-width:1%;" class=" user-edit">  @shared.Get("Edit")</th>
+                        <th style="max-width:1%;" class=" user-delete">@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+    </div>
+</div>
+
+<form data-ajax="true" asp-action="DeleteDealer" data-ajax-method="post" asp-controller="Dealer" data-ajax-success="deleted(data)">
+    <input hidden id="dealerId" asp-for="DealerId" />
+    <button type="submit" class="d-none" id="btnDeleteDealer"></button>
+</form>
+
+<script>
+        $(document).ready(function () {
+
+            LoadDealers();
+        })
+
+        function LoadDealers() {
+            $.ajax({
+                url: "/Dealer/FetchDealers/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var tr = "";
+                    $.each(result, function (i, col) {
+                        tr += '<tr  role="row">' +
+                            '<td >' + (i + 1) + '</td>' +
+                            '<td >' + col.name + '</td>' +
+                            '<td >' + col.fName + '</td>' +
+                            '<td >' + col.address + '</td>' +
+                            '<td>' + col.phone + '</td>' +
+                            ' <td  class="user-edit"><button type="button" onclick="fnEditDealer(' + col.dealerId + ',\'' + col.name + '\',\'' + col.fName + '\',\'' + col.address + '\',\'' + col.phone + '\')" class="btn btn-primary"><i class="fa fa-edit"></i></button></td>' +
+                            ' <td  class="user-delete"><button type="button" onclick="fnDeleteDealer(' + col.dealerId + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button></td>' +
+                            '</tr>';
+
+                    })
+                    var table = $("#tblDealer").dataTable();
+                    table.fnDestroy();
+                    $("#tblDealer>tbody").html("").html(tr);
+
+                    $("#tblDealer").DataTable({
+                            stateSave: true,
+                            "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                            "pageLength": 5,
+                          "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                        });
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+    }
+
+        function funSuccessDealer(data) {
+         LoadDealers();
+            $("#frmDealer")[0].reset();
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            $("#btnSubmitDealer").text("@shared.Get("Save")");
+          }
+
+        function fnEditDealer(id, name, fname, address, phone) {
+
+            $("#DealerId").val(id);
+            $("#Name").val(name);
+            $("#FName").val(fname);
+            $("#Address").val(address);
+            $("#Phone").val(phone);
+
+            $("#btnSubmitDealer").text("@shared.Get("Update")");
+        }
+
+        function fnDeleteDealer(comId) {
+            $("#dealerId").val(comId);
+            swal({
+               title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+            }).then((isConfirm) => {
+                if (isConfirm) {
+                    $("#btnDeleteDealer").trigger("click");
+                }
+            });
+
+        }
+
+        function deleted(data) {
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadDealers();
+    }
+
+    $("#btnResetDealer").click(function () {
+        $("#btnSubmitDealer").text("@shared.Get("Save")");
+    })
+</script>

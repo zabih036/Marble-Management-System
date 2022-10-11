@@ -1,0 +1,428 @@
+﻿
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#remainOnCustomers").addClass("active")</script>
+<style>
+    .dt-buttons {
+        float: left;
+    }
+</style>
+<div class="card p-0 m-0" id="purchaseList">
+    <div class="card-header ">
+        <h2 class="text-center alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:#ffffff;"> @localizer["DealerForm"] </h2>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="card-body">
+                    <ul class="nav nav-tabs nav-top-border no-hover-bg">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="baseIcon-tab11" data-toggle="tab" aria-controls="tabIcon11" href="#tabIcon11" aria-expanded="true"><i class="fa fa-align-justify"></i> @shared.Get("AFN")</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " id="baseIcon-tab12" data-toggle="tab" aria-controls="tabIcon12" href="#tabIcon12" aria-expanded="false"><i class="fa fa-align-justify"></i> @shared.Get("PKR")</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="baseIcon-tab13" data-toggle="tab" aria-controls="tabIcon13" href="#tabIcon13" aria-expanded="false"><i class="fa fa-align-justify"></i> @shared.Get("USD")</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content  pt-1">
+                        <div role="tabpanel" class="tab-pane active" id="tabIcon11" aria-expanded="true" aria-labelledby="baseIcon-tab11">
+                            <div class="text-center">
+                                <h2>@localizer["AFNDealers"]</h2>
+                                <table class="table  table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblaf">
+                                    <thead>
+                                        <tr role="row">
+                                            <th>#</th>
+                                            <th>@localizer["Customer"]</th>
+                                            <th>@localizer["FName"]</th>
+                                            <th>@localizer["Phone"]</th>
+                                            <th>@localizer["Address"]</th>
+                                            <th>@localizer["Currency"]</th>
+                                            <th>@localizer["Debit"]</th>
+                                            <th>@localizer["Credit"] </th>
+                                            <th>@localizer["Balance"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th dir='ltr' rowspan="1" colspan="1"></th>
+                                        </tr>
+                                    </tfoot>
+
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane " id="tabIcon12" aria-labelledby="baseIcon-tab12">
+                            <div class="text-center">
+                                <h2>@localizer["PKRDealers"]</h2>
+                                <table class="table  table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblpk">
+                                    <thead>
+                                        <tr role="row">
+                                            <th>#</th>
+                                            <th>@localizer["Customer"]</th>
+                                            <th>@localizer["FName"]</th>
+                                            <th>@localizer["Phone"]</th>
+                                            <th>@localizer["Address"]</th>
+                                            <th>@localizer["Currency"]</th>
+                                            <th>@localizer["Debit"]</th>
+                                            <th>@localizer["Credit"] </th>
+                                            <th>@localizer["Balance"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th dir='ltr' rowspan="1" colspan="1"></th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabIcon13" aria-labelledby="baseIcon-tab3">
+                            <div class="text-center">
+                                <h2>@localizer["USDDealers"]</h2>
+                                <table class="table  table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblus">
+                                    <thead>
+                                        <tr role="row">
+                                            <th>#</th>
+                                            <th>@localizer["Customer"]</th>
+                                            <th>@localizer["FName"]</th>
+                                            <th>@localizer["Phone"]</th>
+                                            <th>@localizer["Address"]</th>
+                                            <th>@localizer["Currency"]</th>
+                                            <th>@localizer["Debit"]</th>
+                                            <th>@localizer["Credit"] </th>
+                                            <th>@localizer["Balance"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th rowspan="1" colspan="1"></th>
+                                            <th dir='ltr' rowspan="1" colspan="1"></th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+        $(document).ready(function () {
+            dealers();
+        })
+        function dealers() {
+            $.ajax({
+                url: '/Deal/TotalRemainOnCustomer/',
+                type: 'POST',
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var af = "";
+                    var pk = "";
+                    var us = "";
+                    $.each(result.af, function (i, col) {
+                        var remain = col.debit - col.credit;
+                        if (col.debit != null && remain != 0) {
+                            af += "  <tr> ";
+                            af += "      <td>" + (i + 1) + "</td> ";
+                            af += "      <td>" + col.name + "</td> ";
+                            af += "      <td>" + col.fname + "</td> ";
+                            af += "      <td>" + col.phone + "</td> ";
+                            af += "      <td>" + col.province + "</td> ";
+                            af += "      <td>@shared.Get("AFN")</td> ";
+                            af += "      <td>" + parseFloat(col.debit).toFixed(2) + "</td> ";
+                            af += "      <td>" + parseFloat(col.credit).toFixed(2) + "</td> ";
+                            af += "      <td dir='ltr'>" + parseFloat(remain).toFixed(2) + "</td> ";
+                            af += "  </tr>";
+                        }
+                    });
+                    $.each(result.pk, function (i, col) {
+                        var remain = col.debit - col.credit;
+                        if (col.debit != null && remain != 0) {
+
+                            pk += "  <tr> ";
+                            pk += "      <td>" + (i + 1) + "</td> ";
+                            pk += "      <td>" + col.name + "</td> ";
+                            pk += "      <td>" + col.fname + "</td> ";
+                            pk += "      <td>" + col.phone + "</td> ";
+                            pk += "      <td>" + col.province + "</td> ";
+                            pk += "      <td>@shared.Get("PKR")</td> ";
+                            pk += "      <td>" + parseFloat(col.debit).toFixed(2) + "</td> ";
+                            pk += "      <td>" + parseFloat(col.credit).toFixed(2) + "</td> ";
+                            pk += "      <td dir='ltr'>" + parseFloat(remain).toFixed(2) + "</td> ";
+                            pk += "  </tr>";
+                        }
+                    });
+                    $.each(result.us, function (i, col) {
+                        var remain = col.debit - col.credit;
+                        if (col.debit != null && remain != 0) {
+                            us += "  <tr> ";
+                            us += "      <td>" + (i + 1) + "</td> ";
+                            us += "      <td>" + col.name + "</td> ";
+                            us += "      <td>" + col.fname + "</td> ";
+                            us += "      <td>" + col.phone + "</td> ";
+                            us += "      <td>" + col.province + "</td> ";
+                            us += "      <td>@shared.Get("USD")</td> ";
+                            us += "      <td>" + parseFloat(col.debit).toFixed(2) + "</td> ";
+                            us += "      <td>" + parseFloat(col.credit).toFixed(2) + "</td> ";
+                            us += "      <td dir='ltr'>" + parseFloat(remain).toFixed(2) + "</td> ";
+                            us += "  </tr>";
+                        }
+                    });
+                    var table = $("#tblaf").dataTable();
+                    table.fnDestroy();
+                    var table = $("#tblpk").dataTable();
+                    table.fnDestroy();
+                    var table = $("#tblus").dataTable();
+                    table.fnDestroy();
+
+                    $("#tblaf>tbody").html("").html(af);
+                    $("#tblaf").DataTable({
+                        "footerCallback": function (row, data, start, end, display) {
+                            var api = this.api(),
+                                data;
+
+                            // Remove the formatting to get integer data for summation
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                        i : 0;
+                            };
+
+                            // Total over all pages
+                            total = api
+                                .column(8)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Total over this page
+                            pageTotal = api
+                                .column(8, {
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Update footer
+                            $(api.column(8).footer()).html(
+                                '(' + parseFloat(pageTotal).toFixed(2) + ' @localizer["Total"])'
+                            );
+                        },
+                        dom: 'Blfrtip', buttons: [
+                            { extend: 'print', footer: true },
+                            { extend: 'excel', footer: true },
+                            { extend: 'copy', footer: true },
+                        ],
+                        stateSave: true,
+                        "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+                    });
+                       $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+                    $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+                    $("#tblpk>tbody").html("").html(pk);
+                    $("#tblpk").DataTable({
+                        "footerCallback": function (row, data, start, end, display) {
+                            var api = this.api(),
+                                data;
+
+                            // Remove the formatting to get integer data for summation
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                        i : 0;
+                            };
+
+                            // Total over all pages
+                            total = api
+                                .column(8)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Total over this page
+                            pageTotal = api
+                                .column(8, {
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Update footer
+                            $(api.column(8).footer()).html(
+                                '(' + parseFloat(pageTotal).toFixed(2) + ' @localizer["Total"])'
+                            );
+                        },
+                        dom: 'Blfrtip', buttons: [
+                            { extend: 'print', footer: true },
+                            { extend: 'excel', footer: true },
+                            { extend: 'copy', footer: true },
+                        ],
+                        stateSave: true,
+                        "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+                    });
+                      $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+                    $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+                    $("#tblus>tbody").html("").html(us);
+                    $("#tblus").DataTable({
+                        "footerCallback": function (row, data, start, end, display) {
+                            var api = this.api(),
+                                data;
+
+                            // Remove the formatting to get integer data for summation
+                            var intVal = function (i) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '') * 1 :
+                                    typeof i === 'number' ?
+                                        i : 0;
+                            };
+
+                            // Total over all pages
+                            total = api
+                                .column(8)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Total over this page
+                            pageTotal = api
+                                .column(8, {
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            // Update footer
+                            $(api.column(8).footer()).html(
+                                '(' + parseFloat(pageTotal).toFixed(2) + ' @localizer["Total"])'
+                            );
+                        },
+                        dom: 'Blfrtip', buttons: [
+                            { extend: 'print', footer: true },
+                            { extend: 'excel', footer: true },
+                            { extend: 'copy', footer: true },
+                        ],
+                        stateSave: true,
+                        "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+                    });
+                     $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+                    $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+</script>
+}

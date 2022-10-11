@@ -1,0 +1,118 @@
+﻿
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#listOfActive").addClass("active")</script>
+
+
+<div class="card col-md-12">
+    <div class="card-header ">
+        <h2 class="text-center  alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:#ffffff;">@localizer["ReturnedForm"]</h2>
+    </div>
+    <div class="card-content  collapse show">
+        <div class="card-body">
+            <div class="">
+                <table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblList">
+                    <thead>
+                        <tr role="row">
+                            <th>@localizer["Bill"] </th>
+                            <th>@localizer["Dealer"]</th>
+                            <th>@localizer["Item"]</th>
+                            <th>@localizer["CarNo"]</th>
+                            <th>@localizer["Price"]</th>
+                            <th>@localizer["Weight"]</th>
+                            <th>@localizer["Total"]</th>
+                            <th>@localizer["Currency"]</th>
+                            <th>@shared.Get("Details")</th>
+                            <th>@localizer["Date"]</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+        $(document).ready(function () {
+            PurchasedReturned();
+        })
+        function PurchasedReturned() {
+
+            $.ajax({
+                url: '/Purchase/FetchPurchaseReturned/',
+                type: 'POST',
+                contentType: "application/json",
+                data: '{}',
+                datatype: "JSON",
+                success: function (result) {
+
+
+                    var tr = "";
+                    $.each(result, function (i, col) {
+
+                              var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+
+                        tr += "  <tr> ";
+                        tr += "      <td>" + col.billno + "</td> ";
+                        tr += "      <td>" + col.dealer + "</td> ";
+                        tr += "      <td>" + col.item + "</td> ";
+                        tr += "      <td>" + col.carNumber + "</td> ";
+                        tr += "      <td>" + parseFloat(col.price).toFixed(2) + "</td> ";
+                        tr += "      <td>" + col.qty + "</td> ";
+                        tr += "      <td>" + parseFloat(col.qty * col.price).toFixed(2) + "</td> ";
+                        tr += "      <td>" + cur + "</td> ";
+                        tr += "      <td>" + col.desc + "</td> ";
+                        tr += "      <td>" + col.returnDate + "</td> ";
+                        tr += "  </tr>";
+                    });
+                    $("#tblList>tbody").html("").html(tr);
+
+                    $("#tblList").DataTable({
+                        stateSave: true,
+                        dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                       "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                        "emptyTable": " @shared.Get("NoDataInTable")",
+                        "info": "@shared.Get("FromToShow")",
+                        "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                        "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                        "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                        "searchPlaceholder": "@shared.Get("Search")",
+                        "zeroRecords": "@shared.Get("NoRecordFound")",
+                        "paginate": {
+                        "first": "@shared.Get("FirstPage")",
+                        "previous": "@shared.Get("Previous")",
+                        "next": "@shared.Get("Next")",
+                        "last": "@shared.Get("Last")"
+                        },
+                        },
+
+                    });
+                   $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                    $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+</script>
+}

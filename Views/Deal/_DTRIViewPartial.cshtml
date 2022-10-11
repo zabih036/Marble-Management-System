@@ -1,0 +1,418 @@
+﻿
+@model DTRIViewModel
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+<link href="~/css/style.css" rel="stylesheet" />
+<style>
+    .title {
+        font-size: 30px;
+    }
+</style>
+<div class="modal-content">
+    <div class="modal-header bg-primary white" style="justify-content: flex-start; align-items: center;">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["DTRIForm"]</h4>&nbsp;&nbsp;
+        <button type="button" id="btnCash" class="btn btn-warning btn-icon-sm">@localizer["Cash"] </button>
+    </div>
+    <div class="modal-body">
+        <form data-ajax="true" asp-action="AddDTRIDealData" asp-controller="Deal" data-ajax-success="DTRISuccess(data)" data-ajax-method="post" id="frmDTRIDeal">
+            <div id="hide1">
+                <div class="row px-2">
+
+                    <input hidden name="Item2Id" id="Item2Id" />
+                    <input hidden asp-for="Paid" value="None" />
+
+                    <div class="form-group col-md-2">
+                        <label  class="">@localizer["Dealer"]:</label>
+                        <select asp-for="DealersId" asp-items="@ViewBag.dealers" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectDealer"]</option>
+                        </select>
+                        <span asp-validation-for="DealersId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label  class="">@localizer["Item"]:</label>
+                        <select asp-for="ItemId" asp-items="@ViewBag.items" onchange="SelectItemInfo()" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectItem"]</option>
+                        </select>
+                        <span asp-validation-for="ItemId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label  class="">@localizer["Qty"]:</label>
+                        <input asp-for="Qty" class="form-control " />
+                        <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Price"]:</label>
+                        <input asp-for="Price" class="form-control " />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Currency"]:</label>
+                        <select asp-for="DCurrencyId"  class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectCurrency"]</option>
+                            <option value="1">@shared.Get("AFN")</option>
+                            <option value="2">@shared.Get("PKR")</option>
+                            <option value="3">@shared.Get("USD")</option>
+                        </select>
+                        <span asp-validation-for="DCurrencyId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label  class="">@localizer["Stock"]:</label>
+                        <select asp-for="StockId" asp-items="@ViewBag.stocks" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectStock"]</option>
+                        </select>
+                        <span asp-validation-for="StockId" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="row px-2">
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["CarNumber"]:</label>
+                        <input asp-for="CarNumber" class="form-control " />
+                        <span asp-validation-for="CarNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2 d-none" id="divAmount">
+                        <label class="">@localizer["DtriAmount"]:</label>
+                        <input asp-for="DtriAmount" value="0" class="form-control " />
+                        <span asp-validation-for="DtriAmount" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["DtriType"]:</label>
+                        <select asp-for="DtriType" class="form-control">
+                            <option value="">@localizer["SelectDebitCredit"]</option>
+                            <option value="Debit">@localizer["Debit"]</option>
+                            <option value="Credit">@localizer["Credit"]</option>
+                        </select>
+                        <span asp-validation-for="DtriType" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@shared.Get("Date"):</label>
+                        <input asp-for="DtDate" type="date" class="form-control " />
+                        <span asp-validation-for="DtDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@shared.Get("Details"):</label>
+                        <input asp-for="Detail" class="form-control " />
+                    </div>
+
+                    <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                        <button type="submit" id="btn" class="btn btn-primary btn-icon-sm">@shared.Get("Save")</button>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+
+        <div id="repeatedItemList" class="d-none">
+            <div class="card-header">
+                <h4 class="card-title"><strong> @localizer["ItemHasMoreType"]</strong></h4>
+            </div>
+            <table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblItem2">
+                <thead>
+                    <tr role="row">
+                        <th>#</th>
+                        <th>@localizer["Item"]</th>
+                        <th>@localizer["Qty"]</th>
+                        <th>@localizer["Price"]</th>
+                        <th>@localizer["Currency"]</th>
+                        <th>@localizer["Stock"]</th>
+                        <th>@localizer["Total"]</th>
+                    </tr>
+                </thead>
+                <tbody id="selectitem"></tbody>
+            </table>
+        </div>
+
+        <hr class="mt-3" />
+        <table class="table table-responsive table-bordered dataex-fixh-basic dataTable" id="tblDtri">
+            <thead>
+                <tr role="row">
+                    <th>#</th>
+                    <th>@localizer["Dealer"]</th>
+                    <th>@localizer["Item"]</th>
+                    <th>@localizer["CarNumber"] </th>
+                    <th>@localizer["Debit"]</th>
+                    <th>@localizer["Credit"]</th>
+                    <th>@localizer["Price"]</th>
+                    <th>@localizer["Total"]</th>
+                    <th>@localizer["Currency"]</th>
+                    <th>@localizer["Payment"]</th>
+                    <th>@localizer["Date"]</th>
+                    <th>@shared.Get("Details")</th>
+                    <th class="col-md-2">@shared.Get("Delete")</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                    <th rowspan="1" colspan="1"></th>
+                </tr>
+            </tfoot>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<form data-ajax="true" asp-action="DeleteDTRIRecord" data-ajax-method="post" asp-controller="Deal" data-ajax-success="deletedDtri(data)">
+    <input hidden id="deleteIdDtri" name="recordId" />
+    <input hidden id="item2idd" name="item2Id" />
+    <input hidden id="paidamount" name="amount" />
+    <button type="submit" class="d-none" id="btnDelete"></button>
+</form>
+
+<script>
+
+    $(function () {
+        allDtriData()
+    })
+
+    function allDtriData() {
+        $.ajax({
+            url: '/Deal/FetchDTRIData/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+
+                $.each(result, function (i, col) {
+                    var weight = 0;
+                    col.debit != 0 ? weight = col.debit : weight = col.credit;
+
+                      var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + (i + 1) + "</td> ";
+                    tr += "      <td>" + col.name + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + col.car + "</td> ";
+                    tr += "      <td>" + parseFloat(col.debit).toFixed(3) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.credit).toFixed(3) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price).toFixed(2) + "</td> ";
+                    tr += "      <td>" + parseFloat(col.price * col.credit).toFixed(2) + "</td> ";
+                    tr += "      <td>" + cur + "</td> ";
+                    tr += "      <td>" + col.amount + "</td> ";
+                    tr += "      <td>" + col.date + "</td> ";
+                    tr += "      <td>" + col.details + "</td> ";
+                    tr += "      <td><button type='button' class='btn btn-danger ' onclick='DeleteDTRIRecord(" + col.dtriid + ",\"" + col.item2id + "\",\"" + col.amount + "\")' ><i class='fa fa-trash'></i></button></td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblDtri").dataTable();
+                table.fnDestroy();
+
+                $("#tblDtri>tbody").html("").html(tr);
+                $("#tblDtri").DataTable({
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                  "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                });
+
+             $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function DTRISuccess(data) {
+        $("#frmDTRIDeal")[0].reset();
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        allDtriData();
+    }
+
+    function SelectItemInfo() {
+        if ($("#ItemId").val() != 0) {
+            $.ajax({
+                url: "/Deal/FetchItemInfo/?itemid=" + $("#ItemId :selected").val() + "",
+                type: "GET",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var itemCount = 0;
+                    var repeatedItem = "";
+                    $.each(result, function (i, col) {
+                        itemCount++;
+                    });
+                    if (itemCount == 0) {
+                        toastr.warning("@localizer["ItemIsNotExist"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                        $("#hide1").removeClass("d-none");
+                        $("#repeatedItemList").addClass("d-none");
+                    }
+                    else if (itemCount == 1) {
+                        $.each(result, function (i, col) {
+
+                            $("#Item2Id").val(col.item2id);
+                            $("#Qty").val(col.quantity);
+                            $("#Price").val(col.price);
+                            $("#DCurrencyId").val(col.currencyid)
+                            $("#StockId").val(col.stockid)
+
+                            $("#hide1").removeClass("d-none");
+                            $("#repeatedItemList").addClass("d-none");
+
+                        });
+                    }
+                    else {
+                        $.each(result, function (i, col) {
+
+                             var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                            repeatedItem += "   <tr>";
+                            repeatedItem += "       <th scope='row'><input type='radio' onclick='selectedItem(" + col.item2Id + ",\"" + col.quantity + "\",\"" + col.price + "\",\"" + col.currencyid + "\",\"" + col.stockid + "\")' style='width: 30px; height: 30px; ' name='selectitem' /></th>";
+                            repeatedItem += "       <td>" + col.itemname + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(col.quantity).toFixed(3) + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(col.price).toFixed(2) + "</td>";
+                            repeatedItem += "       <td>" + cur + "</td>";
+                            repeatedItem += "       <td>" + col.stock + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(parseFloat(col.price) * parseFloat(col.quantity)).toFixed(2) + "</td>";
+                            repeatedItem += "   </tr>";
+                        });
+                        $("#selectitem").html('').html(repeatedItem);
+                        $("#hide1").addClass("d-none");
+                        $("#repeatedItemList").removeClass("d-none");
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+    }
+
+    function selectedItem(item2id, qty, price, currencyid, stockid) {
+
+
+        $("#Item2Id").val(item2id);
+        $("#Qty").val(parseFloat(qty).toFixed(3));
+        $("#Price").val(parseFloat(price).toFixed(2));
+        $("#DCurrencyId").val(currencyid)
+        $("#StockId").val(stockid)
+
+        $("#hide1").removeClass("d-none");
+        $("#repeatedItemList").addClass("d-none");
+    }
+
+    var toggle = true;
+    $("#btnCash").click(function () {
+        if (toggle) {
+            $("#Price").attr("disabled", "disabled")
+            $("#ItemId").attr("disabled", "disabled")
+            $("#StockId").attr("disabled", "disabled")
+            $("#CarNumber").attr("disabled", "disabled")
+            $("#DtriType").val("Debit");
+            $("#Paid").val("Paid")
+            $("#DtriAmount").val('')
+            $("#divAmount").removeClass("d-none")
+            toggle = false
+        } else {
+            $("#Price").removeAttr("disabled", "disabled")
+            $("#ItemId").removeAttr("disabled")
+            $("#StockId").removeAttr("disabled")
+            $("#CarNumber").removeAttr("disabled")
+            //$("#DtriType").removeAttr("disabled").val('')
+            $("#Paid").val("None")
+            $("#DtriAmount").val(0)
+            $("#divAmount").addClass("d-none")
+            toggle = true
+        }
+    })
+
+    function DeleteDTRIRecord(id, item2id, amount) {
+        $("#deleteIdDtri").val(id);
+        $("#item2idd").val(item2id);
+        $("#paidamount").val(amount);
+
+        swal({
+
+            title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDelete").trigger("click");
+            }
+        });
+
+    }
+
+    function deletedDtri(data) {
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        allDtriData();
+    }
+</script>
+

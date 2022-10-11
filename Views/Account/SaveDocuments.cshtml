@@ -1,0 +1,107 @@
+﻿
+@model DocumentViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>$("#saveDockActive").addClass("active")</script>
+
+
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+        @if (ViewBag.Alert != "empty")
+        {
+
+
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @if (ViewBag.Alert == "1")
+                {
+                    @localizer["Success"]
+                }
+            </div>
+        }
+        @if (ViewBag.delete != "empty")
+        {
+
+
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @if (ViewBag.delete == "2")
+                {
+                    @localizer["Deleted"]
+                }
+            </div>
+        }
+        <div class="modal-header text-center">
+            <h4 class="modal-title " id="myModalLabel17" style="color:white">  @localizer["SaveDocuments"]</h4>
+        </div>
+        <div class="modal-body col-md-12">
+
+            <form asp-controller="Account" asp-action="SaveDocumentss" enctype="multipart/form-data" method="post">
+
+                <div class="row col-md-10 offset-md-1 ">
+
+                    <input hidden asp-for="DocumentID" value="0" />
+                    <div class="form-group col-md-12">
+                        <label class="">@localizer["DocumentDetails"]</label>
+                        <input asp-for="DocumentDetails" class="form-control" />
+                        <span asp-validation-for="DocumentDetails" class="text-danger"></span>
+                    </div>
+
+
+                    <div class=" form-group col-md-12">
+                        <label class="">@localizer["Image"]</label>
+                        <input asp-for="DocumentPicture" type="file" class="form-control" name="img" accept="image/jpeg, image/jpg,image/png" />
+                        <span asp-validation-for="DocumentPicture" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <button type="submit" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                        <button type="reset" id="btncategoryresetDocument" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+
+                    </div>
+                </div>
+            </form>
+            <div class="card">
+                <div class="card-header ">
+                    <h4 class="card-title "><strong>@localizer["ExistDocuments"]</strong></h4>
+                </div>
+
+                <table class="table table-responsive-md table-striped table-condensed  table-bordered dataTables_scrollHead" id="DataTables_Table_1">
+                    <thead class="scrollable-container ps--scrolling-x " style="text-align:center;justify-content:center;align-items:center">
+                        <tr role="row">
+                            <th class="col-md-1">#</th>
+                            <th class="col-md-1">@localizer["DocumentDetails"]</th>
+                            <th class="col-md-1">@localizer["Image"]</th>
+                            <th class="col-md-1 ">@shared.Get("Delete")</th>
+                        </tr>
+                    </thead>
+                    <tbody style="text-align:center;justify-content:center;align-items:center">
+                        @foreach (var item in ViewBag.Documents)
+                        {
+                            <tr role="row">
+                                <th class="">@item.DocumentId</th>
+                                <th class="">@item.DocumentDetails</th>
+                                <th class="p-0 m-0"><a href="@item.DocumentPicture" download="fileName"><img src="@item.DocumentPicture" style="height:100px;width:100px;" /></a></th>
+                                <th class=""> <a href="/Account/DeleteDocument/?id=@item.DocumentId" class="btn btn-danger"><i class="fa fa-trash"></i></a></th>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -1,0 +1,171 @@
+﻿
+@model LoginViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+@{
+    Layout = null;
+
+    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var language = @culture.RequestCulture.Culture.Name;
+
+    var dir = "";
+    if (language == "pa")
+    {
+        dir = "rtl";
+        ViewData["Title"] = "عبدالوهاب اریوبوال شرکت";
+
+    }
+    else
+    {
+        dir = "ltr";
+        ViewData["Title"] = "Abdul Wahab Aryoub Wal Company";
+
+    }
+}
+<style>
+    body, div, h3, p, h2, h1 {
+        font-family: 'Times New Roman', Times, serif;
+        color:black;
+    }
+
+    .alert-dismissible {
+        font-size: 20px;
+    }
+
+    .validation-summary-errors {
+        font-size: 18px;
+    }
+
+
+    .toast-success {
+        margin-top: 40px;
+    }
+
+    .btn {
+        font-size: 20px;
+    }
+
+    a {
+        font-size: 20px;
+    }
+
+
+    label, input, .text-danger {
+        font-size: 23px;
+    }
+
+    span {
+        font-size: 18px;
+    }
+
+    body {
+        color: black;
+    }
+</style>
+<!DOCTYPE html>
+<html class="loading" lang="en" data-textdirection="@dir">
+<head>
+
+    @{
+        if (language == "pa")
+        {
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css-rtl/vendors.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css-rtl/app.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css-rtl/custom-rtl.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css-rtl/core/menu/menu-types/vertical-menu.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css-rtl/pages/login-register.css">
+            <title style="float:right;font-size:30px;" class="font-large-1">عبدالوهاب اریوبوال شرکت</title>
+        }
+        else
+        {
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css/vendors.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css/app.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css/custom.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css/core/menu/menu-types/vertical-menu.css">
+            <link rel="stylesheet" type="text/css" href="~/app-assets/css/pages/login-register.css">
+            <title style="float:right;font-size:30px;" class="font-large-1">Abdul Wahab Aryoub Wal Ltd</title>
+        }
+
+    }
+
+</head>
+<body class="vertical-layout vertical-menu   bg-cyan  menu-expanded blank-page blank-page"
+      data-open="click" data-menu="vertical-menu" data-col="1-column" style="background-image: url('/images/StaticImages/loginBg.jpg');background-position:center;background-size:cover;background-position:top">
+    <!-- ////////////////////////////////////////////////////////////////////////////-->
+    <div class="app-content content " style=" margin: auto;">
+        <div class="content-wrapper">
+            <div class="content-body">
+                <section class="flexbox-container">
+                    <div class="col-md-12  d-flex align-items-center justify-content-center">
+                        <div class="col-md-5 col-sm-12 col-lg-5 box-shadow-3 p-0" style="border-radius:5%;">
+                            <div class="card  m-0" style="border-radius: 5%; background: rgba(255,255,255,0.7); color:black;opacity:0.9">
+                                <div class="text-center p-0 m-0">
+                                    <img src="~/images/StaticImages/logo.png" style="height:50%;width:50%" alt="branding logo">
+                                    <h2 style="font-weight:bold">@ViewData["Title"]</h2>
+                                </div>
+                                <div class="card-content">
+                                    @*<p class="card-subtitle line-on-side text-muted text-center  mx-2">
+                                        <div asp-validation-summary="All" class="text-danger"></div>
+                                    </p>*@
+                                    <div class="card-body pt-0 black" style="color:black">
+                                        <form asp-route-returnurl="@ViewData["ReturnUrl"]" asp-action="Login" asp-controller="Account" data-ajax="true" data-ajax-method="post" class="form-horizontal">
+                                            <fieldset class="form-group floating-label-form-group">
+                                                <label style="color:black">@localizer["Email"]:</label>
+                                                <input asp-for="Email" style="font-size: 20px; border: 1px black solid" class="form-control round " />
+                                                <span asp-validation-for="Email" class="text-danger"></span>
+                                            </fieldset>
+                                            <fieldset class="form-group floating-label-form-group mb-1">
+                                                <label style="color:black">@localizer["Password"]:</label>
+                                                <input asp-for="Password" style="font-size:20px; border:1px black solid" class="form-control round " />
+                                                <span asp-validation-for="Password" class="text-danger"></span>
+                                            </fieldset>
+                                            <div class="form-group row">
+                                                <div class="col-md-6 col-12 text-center text-sm-left">
+                                                    <fieldset>
+                                                        <div class="checkbox">
+                                                            <label  style="font-size:20px;">
+                                                                <input asp-for="RememberMe" />
+                                                               @localizer["Rememberme"]
+                                                            </label>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-md-6 col-12  text-sm-right">
+                                                    <div class="">
+                                                        <a asp-action="ForgotPassword" style="color:black">@localizer["ForgotPassword"]</a>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <button type="submit" id="btnLogin" class="btn btn-outline-primary btn-block mb-5 round " style="font-size:23px;color:black;border:1px black solid "><i class="ft-unlock"></i>@localizer["Login"]</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <script src="~/app-assets/vendors/js/vendors.min.js" type="text/javascript"></script>
+    <script src="~/app-assets/vendors/js/forms/icheck/icheck.min.js" type="text/javascript"></script>
+    <script src="~/app-assets/js/core/app-menu.js" type="text/javascript"></script>
+    <script src="~/app-assets/js/core/app.js" type="text/javascript"></script>
+    <script src="~/app-assets/js/scripts/customizer.js" type="text/javascript"></script>
+    <script src="~/app-assets/js/scripts/forms/form-login-register.js" type="text/javascript"></script>
+</body>
+</html>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
+
+

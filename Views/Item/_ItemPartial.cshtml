@@ -1,0 +1,221 @@
+﻿
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+@model ItemViewModel
+
+
+@inject IAuthorizationService authorize
+
+@if (!(await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+
+    @await Html.PartialAsync("AccessDeniedPartial")
+
+
+    ViewBag.view = "d-none";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+
+@if ((await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "InsertRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "EditRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "DeleteRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "";
+}
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["AddItem"]</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid  @ViewBag.view">
+            <form data-ajax="true" asp-controller="Item" asp-action="ItemSave" data-ajax-success="funSuccess(data)" data-ajax-method="post" id="frm">
+                <div class="row align-items-end justify-content-center pt-2">
+                    <input hidden asp-for="ItemId" value="0" />
+                    <div class="form-group">
+                        <label  class="">@localizer["ItemName"]:</label>
+                        <input asp-for="Name"  class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <label  class="">@localizer["ItemType"]:</label>
+                        <select asp-for="ItemType" class="form-control">
+                            <option value="">@localizer["SelectItemType"]</option>
+                            <option value="1">@localizer["Raw"]</option>
+                            <option value="2">@localizer["Processed"]</option>
+                        </select>
+                        <span asp-validation-for="ItemType" class="text-danger"></span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <div class="form-group @ViewBag.Insert">
+                        <button type="reset" id="btnResetItem" class="btn btn-warning btn-icon-sm">@shared.Get("Reset")</button>
+                        <button type="submit" id="btnSubmitItem" class="btn btn-primary btn-icon-sm">@shared.Get("Save")</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="table  table-striped table-condensed table-bordered " id="tblitem">
+            <thead class="">
+                <tr role="row">
+                    <th style="max-width:1%;">#</th>
+                    <th class="col-md-3">@localizer["ItemName"]</th>
+                    <th class="col-md-1">@localizer["ItemType"] </th>
+                    <th class="@ViewBag.Edit" style="max-width:1%;">@shared.Get("Edit") </th>
+                    <th class="@ViewBag.Delete" style="max-width:1%;"> @shared.Get("Delete")</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<form data-ajax="true" asp-action="DeleteItem" data-ajax-method="post" asp-controller="Item" data-ajax-success="deleted(data)">
+    <input hidden id="deleteId" asp-for="ItemId" />
+    <button type="submit" class="d-none" id="btnDelete"></button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        LoadItemData();
+    })
+
+    function LoadItemData() {
+        $.ajax({
+            url: "/Item/LoadItem/",
+            type: "POST",
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                console.log(result)
+                $.each(result, function (i, col) {
+
+                    tr += '<tr  role="row">' +
+                        '<td >' + (i + 1) + '</td>' +
+                        '<td >' + col.name + '</td>' +
+                        ' <td>' + col.type + '</td>' +
+                        ' <td class="@ViewBag.Edit"><button type="button" onclick="fnEditItem(' + col.itemId + ',\'' + col.name + '\',\'' + col.typeId + '\')" class="btn btn-primary"><i class="fa fa-edit"></i></button></td>' +
+                        ' <td class="@ViewBag.Delete"><button type="button" onclick="fnDeleteItem(' + col.itemId + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button></td>' +
+                        '</tr>';
+
+                })
+                var table = $("#tblitem").dataTable();
+                table.fnDestroy();
+
+                $("#tblitem>tbody").html("").html(tr);
+
+                $("#tblitem").dataTable({
+
+                    stateSave: true,
+                    "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+                    });
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+
+    function funSuccess(data) {
+        LoadItemData();
+        $("#frm")[0].reset();
+
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        $("#btnSubmitItem").text("@shared.Get("Save")");
+    }
+
+    function fnEditItem(id, name, type) {
+         $("#ItemId").val(id);
+        $("#Name").val(name);
+        $("#ItemType").val(type);
+        $("#btnSubmitItem").text("@shared.Get("Update")");
+    }
+
+    $("#btnResetItem").click(function () {
+        $("#btnSubmitItem").text("@shared.Get("Save")");
+    })
+
+    function fnDeleteItem(itemId) {
+        $("#deleteId").val(itemId);
+        swal({
+            title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                $("#btnDelete").trigger("click");
+            }
+        });
+    }
+
+    function deleted(data) {
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        LoadItemData();
+    }
+</script>

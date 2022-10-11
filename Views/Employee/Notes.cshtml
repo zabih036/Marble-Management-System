@@ -1,0 +1,193 @@
+﻿
+@model NoteViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<div class="row">
+    <div class="col-md-12 ">
+        <h2 class="text-center alert bg-yellow bg-darken-2 box-shadow-1" style="background-color:rgb(231, 225, 246);">@localizer["NoteForm"]</h2>
+
+        <hr />
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body card-dashboard">
+                <section>
+                    @Html.AntiForgeryToken()
+
+                    <br />  <br />  <br />
+                    <br />  <br />
+                    <form data-ajax="true" asp-controller="Employee" asp-action="AddNote" data-ajax-success="frmSuccess(data)" data-ajax-method="post" id="frmnotes">
+                        <hr />
+                        <input hidden asp-for="NoteId" class="form-control" value="0" />
+                        <div class="form-group">
+
+                            <label class="">@localizer["Note"]</label>
+                            <input asp-for="Note"   class="form-control" />
+                            <span asp-validation-for="Note" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label  class="">@localizer["Date"]</label>
+                            <input asp-for="TargetDate" asp-format="0:yyyy-MM-dd" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="TargetDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label  class="">@localizer["ReminderDate"]</label>
+                            <input asp-for="RemindDate" asp-format="0:yyyy-MM-dd" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="RemindDate" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" id="btnsubmit" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                            <button type="reset" id="btnreset" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+
+                        </div>
+
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7 " style="margin:0px;">
+        <div class="card">
+            <div class="card-header ">
+                <h4 class="card-title "><strong>@localizer["NotesList"]</strong></h4>
+                <hr />
+                <a class="heading-elements-toggle">
+                    <i class="fa fa-ellipsis-v font-medium-3"></i>
+                </a>
+                <div class="heading-elements">
+                    <ul class="list-inline mb-0">
+
+                        <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="card-content  collapse show">
+                <div class="card-body">
+                    <table class="table   table-bordered dataex-fixh-basic dataTable" id="tbl">
+                        <thead class="">
+                            <tr role="row">
+
+                                <th class="col-md-3">@localizer["Note"]</th>
+                                <th class="col-md-3">@localizer["Date"]</th>
+                                <th class="col-md-3">@localizer["ReminderDate"]</th>
+                                <th class="col-md-3">@shared.Get("Edit")</th>
+                                <th class="col-md-3">@shared.Get("Delete") </th>
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        LoadNotes();
+    })
+    var show = true;
+    function LoadNotes() {
+        $.ajax({
+            url: '/Employee/FetchNotes/',
+            type: 'GET',
+            contentType: "application/json",
+            data: '{}',
+            datatype: "JSON",
+            success: function (customers) {
+                var Cus = "";
+                $.each(customers, function (i, col) {
+                    Cus += ' <tr>';
+                    Cus += '      <td class="col-md-3"> ' + col.note + ' </td>';
+                    Cus += '     <td  class="col-md-3"> ' + col.targetdateShow + '</td>';
+                    Cus += '     <td  class="col-md-2">' + col.reminddateShow + '  </td>';
+                    Cus += '     <td  class="col-md-2"> <button class="btn btn-primary" onclick="passValue(' + col.noteid + ',\'' + col.note + '\',\'' + col.targetdate + '\',\'' + col.reminddate + '\')"><i class="ft-edit"></i></button></td>';
+                    Cus += "      <td><form data-ajax='true' data-ajax-url='/Employee/DeleteNote' data-ajax-success='RetunedItemSuccess(data)' data-ajax-method='post'> <input hidden name='NoteId' value='" + col.noteid + "' /> <button type='submit' class='btn btn-danger'><i class='ft-trash'></i></button></form></td> ";
+                    Cus += '      </tr>';
+                });
+
+                var table = $("#tbl").dataTable();
+                table.fnDestroy();
+
+                $("#tbl>tbody").html("").html(Cus);
+
+                $("#tbl").DataTable({
+
+                    stateSave: true,
+
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                "pageLength": 5,
+                "language": {
+                "emptyTable": " @shared.Get("NoDataInTable")",
+                "info": "@shared.Get("FromToShow")",
+                "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                "searchPlaceholder": "@shared.Get("Search")",
+                "zeroRecords": "@shared.Get("NoRecordFound")",
+                "paginate": {
+                "first": "@shared.Get("FirstPage")",
+                "previous": "@shared.Get("Previous")",
+                "next": "@shared.Get("Next")",
+                "last": "@shared.Get("Last")"
+                },
+                },
+
+                });
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function passValue(noteid, note, targetdate, reminddate) {
+
+        $("#Note").val(note);
+        $("#NoteId").val(noteid);
+        $("#TargetDate").val(targetdate);
+        $("#RemindDate").val(reminddate);
+        $("#btnsubmit").text("@shared.Get("Update")");
+    }
+    function frmSuccess(data) {
+
+        $("#btnsubmit").text("@shared.Get("Save")");
+        var msg = "";
+        if (data == "1") {
+            msg = "@localizer["Success"]";
+        } else {
+            msg = "@localizer["Updated"]";
+        }
+
+        toastr.success(msg, '', { "progressBar": true , positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        $("#frmnotes")[0].reset();
+        LoadNotes();
+    }
+    function RetunedItemSuccess(data) {
+
+        toastr.warning("@localizer["Deleted"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        $("#frmnotes")[0].reset();
+        LoadNotes();
+    }
+    function DeleteNote(noteid) {
+
+    }
+    $("#btnreset").click(function () {
+        $("#btnsubmit").text("@shared.Get("Save")")
+    })
+
+</script>
+
+

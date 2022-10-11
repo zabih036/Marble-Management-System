@@ -1,0 +1,255 @@
+﻿
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+@model StockViewModel
+
+
+@inject IAuthorizationService authorize
+
+@if (!(await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+
+    @await Html.PartialAsync("AccessDeniedPartial")
+
+
+    ViewBag.View = "d-none";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+    ViewBag.View = "";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "InsertRolePolicy")).Succeeded)
+{
+    ViewBag.View = "";
+    ViewBag.Insert = "";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+
+}
+
+@if ((await authorize.AuthorizeAsync(User, "EditRolePolicy")).Succeeded)
+{
+    ViewBag.View = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "DeleteRolePolicy")).Succeeded)
+{
+    ViewBag.View = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "";
+}
+
+
+<div class="modal-content @ViewBag.view">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["AddNewStock"]</h4>
+    </div>
+    <div class="modal-body">
+        <form data-ajax="true" asp-controller="Item" asp-action="SaveStock" data-ajax-success="funSuccessStock(data)" data-ajax-method="post" id="frmStock">
+            <input hidden asp-for="StockId" value="0" />
+            <div class="row col-md-12 align-items-end justify-content-center pt-2 ">
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["Stock"]:</label>
+                    <input asp-for="Stock"  class="form-control" />
+                    <span asp-validation-for="Stock" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label  class="">@localizer["Responsible"]:</label>
+                    <select asp-for="EmployeeId" asp-items="@ViewBag.EmployeeId" class="form-control">
+                        <option value="">@localizer["Responsible"] </option>
+                    </select>
+                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["Location"]:</label>
+                    <input asp-for="Location"  class="form-control" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label  class="">@shared.Get("Details"):</label>
+                    <input asp-for="Details"  class="form-control">
+                    <span asp-validation-for="Details" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2 @ViewBag.Insert">
+                    <button type="reset" id="btnResetStock" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+                    <button type="submit" id="btnSubmitStock" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-responsive-md table-striped table-condensed dataTable_scroll table-bordered dataTables_scrollHead" id="tblStock">
+        <thead class="scrollable-container ps--scrolling-x">
+            <tr role="row">
+                <th class="col-md-0.5">#</th>
+                <th class="col-md-5">@localizer["Stock"]</th>
+                <th class="col-md-5">@localizer["Responsible"]</th>
+                <th class="col-md-5">@localizer["Location"]</th>
+                <th class="col-md-5">@shared.Get("Details")</th>
+                <th class="col-md-1  @ViewBag.Edit"> @shared.Get("Edit") </th>
+                <th class="col-md-1" @ViewBag.Delete>  @shared.Get("Delete")</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+<form data-ajax="true" asp-action="DeleteStock" data-ajax-method="post" asp-controller="Item" data-ajax-success="deleted(data)">
+    <input hidden id="deleteStockId" asp-for="StockId" />
+    <button type="submit" class="d-none" id="btnDeleteStock"></button>
+</form>
+
+<script>
+        $(document).ready(function () {
+            loadStock();
+        })
+
+        function loadStock() {
+            $.ajax({
+                url: "/Item/LoadStock/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var tr = "";
+                    console.log(result)
+                    $.each(result, function (i, col) {
+                        var details = "";
+                        if (col.details == null) {
+                            details = "";
+                        } else {
+                            details = col.details;
+                        }
+                        tr += '<tr class="odd" role="row">' +
+
+                            '<td>' + (i + 1) + '</td>' +
+                            ' <td>' + col.stock + '</td>' +
+                            ' <td>' + col.employee + '</td>' +
+                            ' <td>' + col.location + '</td>' +
+                            ' <td>' + details + '</td>' +
+                            ' <td class="@ViewBag.Edit"><button type="button" onclick="EditStock(' + col.stockId + ',\'' + col.stock + '\',\'' + col.employeeId + '\',\'' + col.location + '\',\'' + details + '\')" class="btn btn-primary"><i class="fa fa-edit"></i></button></td>' +
+                            ' <td class="@ViewBag.Delete"><button type="button" onclick="fnDeleteStock(' + col.stockId + ')" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></td>' +
+                            '</tr>';
+
+                    })
+
+                    var table = $("#tblStock").dataTable();
+                      table.fnDestroy();
+                    $("#tblStock>tbody").html("").html(tr);
+
+                        $("#tblStock").DataTable({
+                            stateSave: true,
+
+                           "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                            "pageLength": 5,
+                           "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                          });
+
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+        }
+
+        function funSuccessStock(data) {
+            loadStock();
+
+            $("#frmStock")[0].reset();
+            $("#btnCloseStock").trigger("click");
+
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            $("#btnSubmitStock").text("@shared.Get("Save")");
+        }
+
+        function EditStock(id, name,employeeId,location,details) {
+
+            $("#Stock").val(name);
+            $("#EmployeeId").val(employeeId);
+            $("#Location").val(location);
+            $("#Details").val(details);
+            $("#StockId").val(id);
+
+            $("#btnAddStock").trigger("click");
+
+            $("#btnSubmitStock").text("@shared.Get("Update")");
+        }
+
+        function fnDeleteStock(comId) {
+            $("#deleteStockId").val(comId);
+            swal({
+            title: '@shared.Get("AreYouSureToDelete")',
+            text: "",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+            }).then((isConfirm) => {
+                if (isConfirm) {
+                    $("#btnDeleteStock").trigger("click");
+                }
+            });
+
+        }
+
+        function deleted(data) {
+
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            loadStock();
+        }
+
+        $("#btnResetStock").click(function () {
+            $("#frmStock")[0].reset();
+            $("#btnSubmitStock").text("@shared.Get("Save")")
+
+        })
+</script>

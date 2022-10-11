@@ -1,0 +1,532 @@
+﻿@model SaleViewModel
+
+@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["SaleItems"] </h4>
+    </div>
+    <div class="modal-body">
+
+        <div id="hide1">
+            <form data-ajax="true" asp-action="" asp-controller="Sale" data-ajax-success="AddItemsToBill()" data-ajax-method="post" id="frmSale">
+                <div class="row px-2">
+
+                    <input hidden asp-for="SaleId" value="0" />
+                    <input hidden id="ProcessedId" />
+                    <input hidden id="CurrencyType" />
+                    <input hidden id="purchasepriceforcur" />
+                    <input hidden id="salepriceforcur" />
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Bill"]:</label>
+                        <input asp-for="SaleBill" class="form-control" />
+                        <span asp-validation-for="SaleBill" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label  class="">@localizer["Customer"]:</label><br />
+                        <select asp-for="CustomerId" asp-items="@ViewBag.customers" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value=""> @localizer["SelectCustomer"]</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label  class="">@localizer["Item"]:</label>
+                        <select asp-for="ItemId" asp-items="@ViewBag.items" onchange="FetchItemInfo()" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectItem"]</option>
+                        </select>
+                        <span asp-validation-for="ItemId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label class="">@localizer["Category"]:</label>
+                        <select asp-for="CategoryId" asp-items="@ViewBag.category" onchange="FetchItemInfo()" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                            <option value="">@localizer["SelectCategory"]</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+
+
+
+
+                </div>
+                <div class="row px-2">
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Price"]:</label>
+                        <input asp-for="Price" disabled class="form-control " />
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["ExistQty"]:</label>
+                        <input asp-for="ExistQty" disabled class="form-control " />
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Qty"]:</label>
+                        <input asp-for="Qty" class="form-control " />
+                        <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["SalePrice"]:</label>
+                        <input asp-for="SalePrice" class="form-control " />
+                        <span asp-validation-for="SalePrice" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@localizer["Currency"]:</label>
+                        <select asp-for="CurrencyId" onchange="exchangeCurrency()" class="form-control">
+                            <option value=""> @localizer["SelectCurrency"] </option>
+                            <option value="1"> @shared.Get("AFN") </option>
+                            <option value="2"> @shared.Get("PKR") </option>
+                            <option value="3"> @shared.Get("USD")</option>
+                        </select>
+                        <span asp-validation-for="CurrencyId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label class="">@shared.Get("Date"):</label>
+                        <input asp-for="Date" type="date" class="form-control " />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                        <button type="submit" id="btnSubmitItemBill" class="btn btn-primary btn-icon-sm">@localizer["AddToBill"]</button>
+                        &nbsp;&nbsp;
+                        <button type="reset" id="btnResetItem" class="btn d-none btn-warning btn-icon-sm"></button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <div id="repeatedItemList" class="d-none">
+            <div class="card-header">
+                <h4 class="card-title"><strong> @localizer["ItemHasMoreTypes"]</strong></h4>
+            </div>
+            <table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblItem2">
+                <thead>
+                    <tr role="row">
+                        <th>#</th>
+                        <th>@localizer["Item"]</th>
+                        <th>@localizer["Category"]</th>
+                        <th>@localizer["Qty"]</th>
+                        <th>@localizer["Price"]</th>
+                        <th>@localizer["Currency"]</th>
+                        <th>@localizer["Stock"]</th>
+                        <th>@localizer["Total"]</th>
+                    </tr>
+                </thead>
+                <tbody id="selectitem"></tbody>
+            </table>
+        </div>
+
+        <div class="col-md-12 d-none justify-content-center" id="billtable">
+            <table class="table  table-active table-bordered" id="tblsaleitems">
+                <thead class="col-md-12 " style="background-color:deepskyblue;">
+                    <tr role="row">
+                        <th>@localizer["Bil"]</th>
+                        <th>@localizer["Item"]</th>
+                        <th>@localizer["Category"]</th>
+                        <th>@localizer["Price"] </th>
+                        <th>@localizer["Qty"] </th>
+                        <th>@localizer["Currency"]</th>
+                        <th>@localizer["Total"]</th>
+                        <th>@shared.Get("Delete")</th>
+                    </tr>
+                </thead>
+
+                <tbody id="currentselling" style="font-size:small"></tbody>
+
+            </table>
+            <hr />
+            <div class="col-md-12 row align-baseline justify-content-center">
+                <div class="form-group col-md-1">
+                    <button id="btnPrints" style="height:52px;" onclick="fnSubmitItems()" class="hidden-print btn btn-primary">@shared.Get("Save") <i class="ft-save"></i></button>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <input id="details" style="height: 53px !important;" dir="auto" placeholder="@shared.Get("Details")" class="form-control" />
+                </div>
+
+                <div class="alert bg-primary alert-dismissible mb-1 col-md-4" role="alert" style="max-width:300px;">
+                    <strong>@localizer["Total"] :</strong> <strong class="text-lg-center" id="afghaniTotal">0</strong>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(function () {
+        $("#ItemId").select2();
+        $("#CustomerId").select2();
+    })
+
+    function FetchItemInfo() {
+        if ($("#ItemId").val() != 0 && $("#CategoryId :selected").val() != 0) {
+            $.ajax({
+                url: "/Sale/FetchItemInfo/?itemid=" + $("#ItemId :selected").val() + "&categoryid=" + $("#CategoryId :selected").val() + "",
+                type: "GET",
+                datatype: "JSON",
+                success: function (result) {
+
+                    var itemCount = 0;
+                    var repeatedItem = "";
+                    $.each(result, function (i, col) {
+                        itemCount++;
+                    });
+                    if (itemCount == 0) {
+                        toastr.warning("@localizer["ItemIsNotInStock"] ", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                        $("#hide1").removeClass("d-none");
+                        $("#repeatedItemList").addClass("d-none");
+
+                        $("#ProcessedId").val('');
+                        $("#SalePrice").val('');
+                        $("#CurrencyId").val('');
+                        $("#CategoryId").val('');
+                        $("#Qty").val('');
+                        $("#Price").val('');
+                        $("#ExistQty").val('');
+                    }
+                    else if (itemCount == 1) {
+
+                        $("#btnSubmitItemBill").removeClass("d-none");
+                        $.each(result, function (i, col) {
+
+                            $("#ProcessedId").val(col.processedId);
+                            $("#Price").val(parseFloat(col.price).toFixed(2));
+                            $("#ExistQty").val(parseFloat(col.quantity).toFixed(3));
+                            $("#CurrencyId").val(col.currencyid)
+                            $("#CurrencyType").val(col.currencyid)
+
+                            $("#purchasepriceforcur").val(parseFloat(col.price).toFixed(2))
+
+                            $("#hide1").removeClass("d-none");
+                            $("#repeatedItemList").addClass("d-none");
+
+                        });
+                    }
+                    else {
+                        $.each(result, function (i, col) {
+
+                            repeatedItem += "   <tr>";
+                            repeatedItem += "       <th scope='row'><input type='radio' onclick='selectedItem(" + col.processedId + ",\"" + col.quantity + "\",\"" + col.price + "\",\"" + col.currencyid + "\",\"" + col.stockid + "\")' style='width: 30px; height: 30px; ' name='selectitem' /></th>";
+                            repeatedItem += "       <td>" + col.itemname + "</td>";
+                            repeatedItem += "       <td>" + col.category + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(col.quantity).toFixed(3) + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(col.price).toFixed(2) + "</td>";
+                            repeatedItem += "       <td>" + col.currency + "</td>";
+                            repeatedItem += "       <td>" + col.stock + "</td>";
+                            repeatedItem += "       <td>" + parseFloat(parseFloat(col.price) * parseFloat(col.quantity)).toFixed(2) + "</td>";
+                            repeatedItem += "   </tr>";
+                        });
+                        $("#selectitem").html('').html(repeatedItem);
+                        $("#hide1").addClass("d-none");
+                        $("#repeatedItemList").removeClass("d-none");
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+    }
+
+    function selectedItem(processedId, qty, price, currencyid, stockid) {
+
+        $("#btnSubmitItemBill").removeClass("d-none");
+
+        $("#ProcessedId").val(processedId);
+        $("#Price").val(parseFloat(price).toFixed(2));
+        $("#ExistQty").val(parseFloat(qty).toFixed(3));
+        $("#CurrencyId").val(currencyid)
+        $("#CurrencyType").val(currencyid)
+
+        $("#purchasepriceforcur").val(parseFloat(price).toFixed(2))
+
+        $("#hide1").removeClass("d-none");
+        $("#repeatedItemList").addClass("d-none");
+    }
+
+    $("#SalePrice").keyup(function () {
+        $("#salepriceforcur").val($("#SalePrice").val())
+    })
+
+    $("#Qty").keyup(function () {
+        if ($("#ExistQty").val() < $("#Qty").val()) {
+            toastr.success("@localizer["QtyIsMore"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            $("#btnSubmitItemBill").addClass("d-none")
+        } else {
+            $("#btnSubmitItemBill").removeClass("d-none")
+        }
+    })
+
+    function exchangeCurrency() {
+        var currency = $("#CurrencyId").val();
+        var type = $("#CurrencyType").val();
+        var currentpur = $("#Price").val();
+        var currentsale = $("#SalePrice").val();
+
+        var aftous = parseFloat(localStorage.getItem("aftous"));
+        var aftopk = parseFloat(localStorage.getItem("aftopk"));
+        var ustopk = parseFloat(localStorage.getItem("ustopk"));
+
+        var itemprice = parseFloat($("#purchasepriceforcur").val());
+        var saleprice = parseFloat($("#salepriceforcur").val());
+
+        if (type == 1) {
+            if (currency == 1) {
+                $("#Price").val(parseFloat(itemprice).toFixed(3))
+                $("#SalePrice").val(parseFloat(saleprice).toFixed(3))
+                $("#purPriceHiden").val(parseFloat(currentpur).toFixed(3))
+                $("#salePriceHiden").val(parseFloat(currentsale).toFixed(3))
+            }
+            if (currency == 2) {
+                $("#Price").val(parseFloat(itemprice * aftopk).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice * aftopk).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice * aftopk).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice * aftopk).toFixed(3));
+            }
+            if (currency == 3) {
+                $("#Price").val(parseFloat(itemprice / aftous).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice / aftous).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice / aftous).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice / aftous).toFixed(3));
+            }
+        } else if (type == 2) {
+            if (currency == 1) {
+                $("#Price").val(parseFloat(itemprice / aftopk).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice / aftopk).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice / aftopk).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice / aftopk).toFixed(3));
+            }
+            if (currency == 2) {
+                $("#Price").val(parseFloat(itemprice).toFixed(3))
+                $("#SalePrice").val(parseFloat(saleprice).toFixed(3))
+                $("#purPriceHiden").val(parseFloat(currentpur).toFixed(3))
+                $("#salePriceHiden").val(parseFloat(currentsale).toFixed(3))
+            }
+            if (currency == 3) {
+                $("#Price").val(parseFloat(itemprice / ustopk).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice / ustopk).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice / ustopk).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice / ustopk).toFixed(3));
+            }
+        } else if (type == 3) {
+            if (currency == 1) {
+                $("#Price").val(parseFloat(itemprice * aftous).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice * aftous).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice * aftous).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice * aftous).toFixed(3));
+            }
+            if (currency == 2) {
+                $("#Price").val(parseFloat(itemprice * ustopk).toFixed(3));
+                $("#SalePrice").val(parseFloat(saleprice * ustopk).toFixed(3));
+                $("#purPriceHiden").val(parseFloat(itemprice * ustopk).toFixed(3));
+                $("#salePriceHiden").val(parseFloat(saleprice * ustopk).toFixed(3));
+            }
+            if (currency == 3) {
+                $("#Price").val(parseFloat(itemprice).toFixed(3))
+                $("#SalePrice").val(parseFloat(saleprice).toFixed(3))
+                $("#purPriceHiden").val(parseFloat(currentpur).toFixed(3))
+                $("#salePriceHiden").val(parseFloat(currentsale).toFixed(3))
+            }
+        }
+    }
+
+    var count = 0;
+    var rowId = 0;
+
+    let row = 1;
+    function AddItemsToBill() {
+
+        var currencyId = 0;
+
+        if ($("#currentselling").children().length > 0) {
+
+            currencyId += $("#currentselling>tr").find('td').eq(11).text();
+
+            if (currencyId != parseInt($("#CurrencyId").val())) {
+                toastr.warning("@localizer["CantUseTwoCurrency"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+
+            } else {
+                GenerateBill();
+            }
+        } else {
+            GenerateBill();
+        }
+
+    }
+
+    function GenerateBill() {
+        $("#billtable").removeClass("d-none");
+
+        $("#SaleBill").attr({ "disabled": "disabled" });
+        $("#CustomerId").attr({ "disabled": "disabled" });
+
+        var saleditem = "";
+
+        saleditem += "  <tr  id='" + row + "'>";
+        saleditem += "     <td class='item'><label>" + $("#SaleBill").val() + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#ItemId :selected").text() + "</label></td>";
+        saleditem += "     <td class='item'><label>" + $("#CategoryId :selected").text() + "</label></td>";
+        saleditem += "     <td><label>" + parseFloat($("#SalePrice").val()).toFixed(2) + "<label</td>";
+        saleditem += "     <td><label>" + $("#Qty").val() + "<label</td>";
+        saleditem += "     <td><label>" + $("#CurrencyId :selected").text() + "</label></td>";
+        saleditem += "     <td><label>" + parseFloat($("#SalePrice").val() * $("#Qty").val()).toFixed(2) + "</label></td>";
+        saleditem += "     <td><button type='button' class='btn btn-danger btnRad' onclick='removeItemFromList(this)' ><i class='fa fa-trash'></i></button></td>";
+        saleditem += "     <td style='display:none'>" + $("#ItemId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#CategoryId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#CustomerId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#CurrencyId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#ProcessedId").val() + "</td>";
+        saleditem += "     <td style='display:none'>" + $("#Price").val() + "</td>";
+        saleditem += " </tr>";
+
+        row++;
+        $("#currentselling").append(saleditem);
+        updateTotalPrice();
+
+        $("#ProcessedId").val('');
+        $("#SalePrice").val('');
+        $("#CurrencyId").val('');
+        $("#Qty").val('');
+        $("#Price").val('');
+        $("#ExistQty").val('');
+
+    }
+
+    function fnSubmitItems() {
+
+        let data = []
+        let items = {}
+        let alltotal = 0.0;
+        $("#currentselling>tr").each(function (i, col) {
+            items = {
+                bill: parseInt($(this).find('td').eq(0).text()),
+                saleprice: parseFloat($(this).find('td').eq(3).text()),
+                qty: parseFloat($(this).find('td').eq(4).text()),
+                itemid: parseInt($(this).find('td').eq(8).text()),
+                categoryid: parseInt($(this).find('td').eq(9).text()),
+                customerid: parseInt($(this).find('td').eq(10).text()),
+                currencyid: parseInt($(this).find('td').eq(11).text()),
+                processedid: parseInt($(this).find('td').eq(12).text()),
+                purprice: parseFloat($(this).find('td').eq(13).text()),
+            };
+            alltotal += parseFloat($(this).find('td').eq(6).find('label').text());
+            data.push(items)
+        })
+
+        if (alltotal < 0) {
+            toastr.warning('@localizer["BillEmpty"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        } else {
+            $.ajax({
+                url: "/Sale/AddSaledItems/?data=" + JSON.stringify(data) + "&credit=" + $("#afghaniPay").val() + "&debit=" + alltotal + "&details=" + $("#details").val() + "&date=" + $("#Date").val() + "",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    fnSuccessSale(result);
+                },
+                error: function (err) {
+                    toastr.error('@localizer["FindErrorAndTry"]', '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+                }
+            })
+        }
+    }
+
+    function fnSuccessSale(result) {
+        if (result == "success") {
+            $("#afghaniTotal").text("0");
+            $("#afghaniRemain").text("0");
+            $("#afghaniPay").val("");
+            $("#dealler").val(0);
+            $("#currentselling").empty();
+            $("#billtable").addClass("d-none");
+            $("#btnResetItem").trigger("click");
+            toastr.success("@localizer["SaledSuccess"]", '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+
+            $("#SaleBill").removeAttr("disabled");
+            $("#CustomerId").removeAttr("disabled");
+
+            allSaledItems();
+        }
+    }
+
+    function updateTotalPrice() {
+        let subtotal = 0.0;
+        $("#currentselling>tr").each(function (i, col) {
+
+            subtotal += parseFloat($(this).find('td').eq(6).find('label').text());
+        })
+        $("#afghaniTotal").text(subtotal.toFixed(2))
+    }
+
+    function clearinput(row, which) {
+        if (which == 1) {
+            $("#" + row).find('td').eq(4).find('input').val('');
+        }
+        else {
+            $("#" + row).find('td').eq(5).find('input').val('');
+        }
+
+    }
+
+    function removeItemFromList(row) {
+        $(row).closest('tr').remove();
+        if ($("#currentselling").children().length < 1) {
+            $("#billtable").addClass("d-none");
+
+            $("#SaleBill").removeAttr("disabled");
+            $("#CustomerId").removeAttr("disabled");
+        }
+        updateTotalPrice();
+        $("#afghaniPay").val('')
+    }
+
+    function SelectItemInfo() {
+        if ($("#itemid").val() != 0)
+            $("#btnSubmit").trigger("click");
+    }
+
+    var rownum = 1;
+    function payAfghani() {
+        var totl = parseFloat($("#afghaniTotal").text()).toFixed(2) - parseFloat($("#afghaniPay").val()).toFixed(2);
+        $("#afghaniRemain").text(parseFloat(totl).toFixed(2));
+    }
+
+    var quantity = 0;
+    function returnItem(saleid, itemid, deallerid, saleprice, quantit) {
+
+        quantity = quantit;
+        $("#saleid").val(saleid);
+        $("#itemidr").val(itemid);
+        if (deallerid != 1) {
+
+            $("#customer").val(deallerid);
+            $("#formamount").removeClass("d-none");
+        } else {
+            $("#formamount").addClass("d-none");
+        }
+
+        $("#saleprice").val(saleprice);
+
+        $("#returnModal").modal("show");
+    }
+
+    function frmSuccessReturn() {
+        $("#btnCloseReturn").trigger("click");
+        todaysreport();
+    }
+</script>
+

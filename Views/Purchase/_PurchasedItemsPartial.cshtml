@@ -1,0 +1,133 @@
+﻿@inject IViewLocalizer localizer
+
+@inject SharedResources shared
+
+
+<table class="table table-responsive-md table-bordered dataex-fixh-basic dataTable" id="tblPurchased">
+    <thead>
+        <tr role="row">
+            <th>@localizer["Bill"]</th>
+            <th>@localizer["Dealer"]</th>
+            <th>@localizer["Item"]</th>
+            <th>@localizer["CarNo"]</th>
+            <th>@localizer["Weight"]</th>
+            <th>@localizer["Price"]</th>
+            <th>@localizer["Currency"]</th>
+            <th>@localizer["Date"]</th>
+            <th>@localizer["Total"]</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+            <th rowspan="1" colspan="1"></th>
+        </tr>
+    </tfoot>
+    <tbody></tbody>
+</table>
+
+<script>
+    $(function () {
+        allPurchased()
+    })
+    function allPurchased() {
+        $.ajax({
+            url: '/Purchase/FetchPurchasedItems/',
+            type: 'POST',
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+
+                      var cur = "";
+                    col.currency == "AFN" ? cur = "@shared.Get("AFN")" : col.currency == "PKR" ? cur = "@shared.Get("PKR")": cur = "@shared.Get("USD")"
+
+
+                    tr += "  <tr> ";
+                    tr += "      <td> " + col.billno + "</td> ";
+                    tr += "      <td>" + col.dealer + "</td> ";
+                    tr += "      <td>" + col.item + "</td> ";
+                    tr += "      <td>" + col.carNumber + "</td> ";
+                    tr += "      <td>" + col.firstQty + "</td> ";
+                    tr += "      <td>" + parseFloat(col.firstPrice).toFixed(2) + "</td> ";
+                    tr += "      <td>" + cur + "</td> ";
+                    tr += "      <td>" + col.purchaseDate + "</td> ";
+                    tr += "      <td>" + parseFloat(col.firstQty * col.firstPrice).toFixed(2) + "</td> ";
+                    tr += "  </tr>";
+                });
+
+                var table = $("#tblPurchased").dataTable();
+                table.fnDestroy();
+
+                $("#tblPurchased>tbody").html("").html(tr);
+                $("#tblPurchased").DataTable({
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(),
+                            data;
+                        var intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                    i : 0
+                        };
+
+                        first = api
+                            .column(8, {
+                                page: 'current'
+                            })
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                        $(api.column(8).footer()).html(
+                            '@localizer["Total"]' + parseFloat(first).toFixed(2)
+                        );
+                    },
+                    dom: 'Blfrtip', buttons: [
+                        { extend: 'print', footer: true },
+                        { extend: 'excel', footer: true },
+                        { extend: 'copy', footer: true },
+                    ],
+                    stateSave: true,
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                    "pageLength": 5,
+                    "language": {
+                    "emptyTable": " @shared.Get("NoDataInTable")",
+                    "info": "@shared.Get("FromToShow")",
+                    "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                    "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                    "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                    "searchPlaceholder": "@shared.Get("Search")",
+                    "zeroRecords": "@shared.Get("NoRecordFound")",
+                    "paginate": {
+                    "first": "@shared.Get("FirstPage")",
+                    "previous": "@shared.Get("Previous")",
+                    "next": "@shared.Get("Next")",
+                    "last": "@shared.Get("Last")"
+                    },
+                    },
+
+                });
+
+              $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+</script>

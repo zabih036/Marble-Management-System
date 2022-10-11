@@ -1,0 +1,134 @@
+﻿
+@model ExpenseViewModel
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100">@localizer["ExpenseForm"]</h4>
+    </div>
+    <div class="modal-body">
+        <form data-ajax="true" asp-action="SaveExpense" asp-controller="Deal" data-ajax-success="fnSuccess(data)" data-ajax-method="post">
+            <div class="row px-2">
+
+                <div class="form-group col-md-2">
+                    <label class="">@localizer["ExpenseAmount"]</label>
+                    <input asp-for="Expense" class="form-control " />
+                    <span asp-validation-for="Expense" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label  class="">@localizer["ExpenseType"]</label>
+                    <select asp-for="ExpenseTypeId" asp-items="@ViewBag.expenseType" class="form-control select2 select2-container select2-container--default select2-container--above" style="width:100%">
+                        <option value="">@localizer["SelectExpenseType"]</option>
+                    </select>
+                    <span asp-validation-for="ExpenseTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label class="" >@localizer["Date"]</label>
+                    <input asp-for="ExpenseDate" asp-format="{0:yyyy-MM-dd}" type="datetime-local" class="form-control ">
+                    <span asp-validation-for="ExpenseDate" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group col-md-3">
+                    <label  class="">@shared.Get("Details")</label>
+                    <input asp-for="Detail" class="form-control " />
+                </div>
+                <div class="form-group col-md-2 " style="display:flex;align-items:flex-end">
+                    <button type="submit" class="btn btn-primary btn-icon-sm">@shared.Get("Save") </button>&nbsp;&nbsp;
+                    <button type="reset" id="btnReset" class="btn btn-warning btn-icon-sm">@shared.Get("Reset") </button>
+                </div>
+            </div>
+        </form>
+
+
+        <table class=" table  table-striped table-condensed table-bordered dataTables_scrollHead " id="tblExpense">
+            <thead class="scrollable-container ps--scrolling-x" style="width:100%">
+                <tr role="row">
+                    <th class="col-md-1">#</th>
+                    <th class="col-md-3"> @localizer["ExpenseAmount"]</th>
+                    <th class="col-md-1"> @localizer["ExpenseType"] </th>
+                    <th class="col-md-2"> @localizer["Date"] </th>
+                    <th class="col-md-3"> @shared.Get("Details") </th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+
+        </table>
+    </div>
+</div>
+
+
+
+<script>
+    $(function () {
+        loadExpense();
+    })
+    function loadExpense() {
+        $.ajax({
+            url: "/Deal/LoadExpense/",
+            type: "POST",
+            contentType: "application/json",
+            datatype: "JSON",
+            success: function (result) {
+                var tr = "";
+                $.each(result, function (i, col) {
+                    tr += '<tr role="row">' +
+                        '<td>' + (i + 1) + '</td>' +
+                        ' <td>' + col.expenceAmount.toFixed(3) + '</td>' +
+                        ' <td>' + col.expenceType + '</td>' +
+                        ' <td>' + col.expenceDateShow + '</td>' +
+                        ' <td>' + col.detail + '</td>' +
+                        '</tr>';
+                })
+                var table = $("#tblExpense").dataTable();
+                table.fnDestroy();
+                $("#tblExpense>tbody").html("").html(tr);
+                $("#tblExpense").dataTable({
+
+                    stateSave: true,
+                    dom: 'Blfrtip', buttons: ['excel', 'print', 'copy'],
+                   "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                        "pageLength": 5,
+                        "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                });
+               $(".buttons-print").text("@shared.Get("Print")")
+                $(".buttons-copy").text("@shared.Get("Copy")")
+                $(".buttons-excel").text("@shared.Get("Excel")")
+
+                $('.buttons-copy, .buttons-print, .buttons-excel').addClass('btn btn-primary ');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+    function fnSuccess(data) {
+        toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+        $("#btnReset").trigger("click");
+        loadExpense();
+    }
+</script>

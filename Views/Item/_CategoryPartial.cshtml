@@ -1,0 +1,216 @@
+﻿
+
+@inject IViewLocalizer localizer
+
+
+@inject SharedResources shared
+
+
+@model ItemCategoryViewModel
+
+
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorize
+
+@if (!(await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+
+    @await Html.PartialAsync("AccessDeniedPartial")
+
+
+    ViewBag.view = "d-none";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "ViewRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "d-none";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "InsertRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Delete = "d-none";
+    ViewBag.Edit = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "EditRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "d-none";
+}
+
+@if ((await authorize.AuthorizeAsync(User, "DeleteRolePolicy")).Succeeded)
+{
+    ViewBag.view = "";
+    ViewBag.Insert = "";
+    ViewBag.Edit = "";
+    ViewBag.Delete = "";
+}
+
+
+<div class="modal-content">
+    <div class="modal-header bg-primary white">
+        <h4 class="modal-title" id="myModalLabel100"> @localizer["AddCategory"]</h4>
+    </div>
+    <div class="modal-body">
+        <form data-ajax="true" asp-controller="Item" asp-action="SaveItemCategory" data-ajax-success="funSuccessCategory(data)" data-ajax-method="post" id="frmCategory">
+
+            <div class="row col-md-12 align-items-end justify-content-center pt-2 @ViewBag.view">
+                <div class="col-md-4 offset-3">
+                    <input hidden asp-for="CategoryId" value="0" />
+                    <div class="form-group">
+                        <label class="">@localizer["Category"]:</label>
+                        <input asp-for="Category" class="form-control" />
+                        <span asp-validation-for="Category" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-md-3 @ViewBag.Insert">
+                    <button type="reset" id="btncategoryreset" class="btn btn-warning btn-icon-md">@shared.Get("Reset")</button>
+                    <button type="submit" id="btnSubmitCategory" class="btn btn-primary btn-icon-md">@shared.Get("Save")</button>
+                </div>
+            </div>
+        </form>
+
+        <table class="table table-responsive-md table-striped table-condensed  table-bordered dataTables_scrollHead" id="tblCategory">
+            <thead class="scrollable-container ps--scrolling-x ">
+                <tr role="row">
+
+                    <th style="max-width:10px;">#</th>
+                    <th class="col-md-1">@localizer["Category"]</th>
+                    <th class="col-md-1 @ViewBag.Edit ">@shared.Get("Edit")  </th>
+                    <th class="col-md-1 @ViewBag.Delete">@shared.Get("Delete")  </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<form data-ajax="true" asp-action="DeleteCategory" data-ajax-method="post" asp-controller="Item" data-ajax-success="deletedCategory(data)">
+    <input hidden id="deleteCategoryId" asp-for="CategoryId" />
+    <button type="submit" class="d-none" id="btnDeleteCategory"></button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        LoadCategory();
+    })
+
+    function LoadCategory() {
+            $.ajax({
+                url: "/Item/LoadCategory/",
+                type: "POST",
+                contentType: "application/json",
+                datatype: "JSON",
+                success: function (result) {
+                    var tr = "";
+                    $.each(result, function (i, col) {
+                        tr += '<tr class="odd" role="row">' +
+                            '<td>' + (i + 1) + '</td>' +
+                            ' <td class="col-md-4">' + col.category1 + '</td>' +
+                            ' <td class="@ViewBag.Edit"><button type="button" onclick="EditCategory(' + col.categoryId + ',\'' + col.category1 + '\')" class="btn btn-primary"><i class="fa fa-edit"></i></button></td>' +
+                            ' <td class="@ViewBag.Delete"><button type="button" onclick="fnDeleteCategory(' + col.categoryId + ')" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></td>' +
+                            '</tr>';
+
+                    })
+                    var table = $("#tblCategory").dataTable();
+                    table.fnDestroy();
+
+                    $("#tblCategory>tbody").html("").html(tr);
+
+                    $("#tblCategory").DataTable({
+                            stateSave: true,
+                           "lengthMenu": [[5, 10, 20, -1], [5, 15, 50, "@shared.Get("All")"]],
+                          "pageLength": 5,
+                          "language": {
+                            "emptyTable": " @shared.Get("NoDataInTable")",
+                            "info": "@shared.Get("FromToShow")",
+                            "infoFiltered": "@shared.Get("ExistItemsInTable")",
+
+                            "lengthMenu": "@shared.Get("ShowingRecordsNumber")",
+                            "search": "@shared.Get("Search")<span id='tblSearch' class='fa fa-search'></span> ",
+                            "searchPlaceholder": "@shared.Get("Search")",
+                            "zeroRecords": "@shared.Get("NoRecordFound")",
+                            "paginate": {
+                                "first": "@shared.Get("FirstPage")",
+                                "previous": "@shared.Get("Previous")",
+                                "next": "@shared.Get("Next")",
+                                "last": "@shared.Get("Last")"
+                            },
+                        },
+
+                        });
+
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            })
+    }
+
+        function funSuccessCategory(data) {
+
+            LoadCategory();
+
+            $("#frmCategory")[0].reset();
+            $("#btnCloseCategory").trigger("click");
+
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            $("#btnSubmitCategory").text("@shared.Get("Save")");
+        }
+
+        function EditCategory(id, name) {
+
+            $("#Category").val(name);
+            $("#CategoryId").val(id);
+
+            $("#btnSubmitCategory").text("@shared.Get("Update")");
+    }
+
+        function fnDeleteCategory(comId) {
+            $("#deleteCategoryId").val(comId);
+                 swal({
+                 title: '@shared.Get("AreYouSureToDelete")',
+                 text: "",
+                 icon: "warning",
+                buttons: {
+                cancel: {
+                    text: "@shared.Get("No")",
+                    value: null,
+                    visible: true,
+                    className: "",
+                    closeModal: true,
+                },
+                confirm: {
+                    text: "@shared.Get("Yes")",
+                    value: true,
+                    visible: true,
+                    className: "",
+                    closeModal: true
+                }
+            }
+
+            }).then((isConfirm) => {
+                if (isConfirm) {
+                    $("#btnDeleteCategory").trigger("click");
+                }
+            });
+    }
+
+    function deletedCategory(data) {
+            toastr.success(data, '', { "progressBar": true, positionClass: '@shared.Get("Toast")', containerId: '@shared.Get("Toast")' });
+            LoadCategory();
+        }
+</script>
